@@ -68,7 +68,8 @@ exports.App = App = __decorate([(0, _angular.Component)({
     selector: 'my-app',
     template: "\n    <div class=\"row\">\n      <div>{{state}}</div>\n    </div>\n    <div class=\"row\">\n      <ul>\n        <li><a [router-link]=\"['/Page1']\">PAGE1</a></li>\n        <li><a [router-link]=\"['/Page2']\">PAGE2</a></li>\n      </ul>\n    </div>\n    <router-outlet></router-outlet>\n  ",
     directives: [_page.Page1, _page2.Page2, _router.ROUTER_DIRECTIVES, _router.RouterLink, _router.RouterOutlet]
-}), (0, _router.RouteConfig)([new _router.Route({ path: '/p1', component: _page.Page1, name: 'Page1' }), new _router.Route({ path: '/p2', component: _page2.Page2, name: 'Page2' })]), __metadata('design:paramtypes', [_router.Location, _router.Router])], App);
+}), (0, _router.RouteConfig)([new _router.Route({ path: '/p1', component: _page.Page1, name: 'Page1' }), new _router.Route({ path: '/p2', component: _page2.Page2, name: 'Page2' })]), __metadata('design:paramtypes', [typeof (_a = typeof _router.Location !== 'undefined' && _router.Location) === 'function' && _a || Object, typeof (_b = typeof _router.Router !== 'undefined' && _router.Router) === 'function' && _b || Object])], App);
 (0, _angular.bootstrap)(App, [_router.ROUTER_PROVIDERS, (0, _angular.provide)(_router.LocationStrategy, { useClass: _router.HashLocationStrategy })]).catch(function (err) {
     return console.error(err);
 });
+var _a, _b;

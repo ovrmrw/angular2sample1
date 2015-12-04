@@ -2,7 +2,7 @@
   "name": "angular2sample1",
   "version": "1.0.0",
   "description": "Angular2のサンプルっぽい何かを作ります。今のところ全くの未完成。",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,10 @@
     "url": "https://github.com/ovrmrw/angular2sample1/issues"
   },
   "homepage": "https://github.com/ovrmrw/angular2sample1#readme",
+  "env": {
+    "express": "production",
+    "electron": "jade"
+  },
   "dependencies": {
     "angular2": "^2.0.0-alpha.47",
     "co": "^4.6.0",
@@ -39,6 +43,8 @@
     "electron-prebuilt": "^0.35.2",
     "electron-reload": "^0.2.0",
     "express": "^4.13.3",
+    "gulp-electron": "0.0.9",
+    "gulp-filter": "^3.0.1",
     "jade": "^1.11.0",
     "jasmine-core": "^2.4.1",
     "live-server": "^0.8.2",

@@ -5,13 +5,19 @@ const ts = require('gulp-typescript');
 const plumber = require('gulp-plumber');
 const babel = require('gulp-babel');
 const nodemon = require('gulp-nodemon');
+const filter = require('gulp-filter')
 const browserSync = require('browser-sync').create();
 
+/////////////////////////////////////////////////////////////////////////
+// TypeScript Compile
+
 gulp.task('tsc', () => {
-  const tsProject = ts.createProject('tsconfig.json');
-  tsProject.src()
+  const tsProject = ts.createProject('tsconfig.json', {noExternalResolve : true});
+  tsProject.src(['*.ts', 'src/**/*.ts'])
     .pipe(plumber())
+    .pipe(filter(['**/**/*.ts', '!**/**/*.d.ts', '!node_modules', '!typings']))
     .pipe(ts(tsProject))
+    .js
     .pipe(babel({
       presets: ['es2015']
     }))
@@ -21,9 +27,12 @@ gulp.task('tsc', () => {
 gulp.task('compile', ['tsc']);
 
 gulp.task('watch', () => {
-  gulp.watch(['**/**/*.ts', '!**/**/*.d.ts', '!node_modules/**/*.ts'], ['tsc']);
+  gulp.watch(['*.ts', 'src/**/*.ts'], ['tsc']);
 });
- 
+
+/////////////////////////////////////////////////////////////////////////
+// EXPRESS
+
 function reload() {
   browserSync.reload({ stream: false });
 };
@@ -37,7 +46,7 @@ gulp.task('browsersync', function () {
   });
 });
 
-gulp.task('serve', ['browsersync'], function () {
+gulp.task('express', ['browsersync'], function () {
   nodemon({
     script: 'express.js',
     ext: 'js html css',
@@ -65,4 +74,15 @@ gulp.task('serve', ['browsersync'], function () {
   });
 });
 
-gulp.task('default', ['compile', 'serve', 'watch']);
+gulp.task('ex', ['compile', 'express', 'watch']);
+
+/////////////////////////////////////////////////////////////////////////
+// ELECTRON
+
+gulp.task('electron', () => {
+  const electron = require('electron-prebuilt');
+  const proc = require('child_process');
+  proc.spawn(electron, ['main.js']);
+});
+
+gulp.task('el', ['compile', 'electron', 'watch']);

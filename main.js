@@ -7,18 +7,19 @@ let filePath = null;
 let express_host = null;
 let express_port = null;
 
-const electron_env = _.trim(process.env.ELECTRON_ENV);
 const JADE = "jade";
+const electron_env = require('./package.json').env.electron;
+const express_env = require('./package.json').env.express;
 console.log('Electron is running as "%s" mode.', electron_env);
 
-if (electron_env === JADE) {
+if (electron_env === JADE) { // jade
   const jade = require('jade');
-  const html = jade.renderFile('./src/index.jade', { title: "ElectronApp", mode: "development" });
+  const html = jade.renderFile('./src/index.jade', { title: "ElectronApp", mode: express_env });
   filePath = './src/index.jade.html';
   fs.writeFileSync(filePath, html);
 } else { // express
   require('babel-register')();
-  const express_info = require('./express.es6');
+  const express_info = require('./express');
   express_host = express_info.host;
   express_port = express_info.port;
 }
@@ -29,7 +30,7 @@ const app = require('app');  // Module to control application life.
 const BrowserWindow = require('browser-window');  // Module to create native browser window.
 
 // Report crashes to our server.
-require('crash-reporter').start();
+//require('crash-reporter').start();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

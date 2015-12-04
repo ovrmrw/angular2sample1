@@ -1,6 +1,6 @@
 System.config({
   baseURL: '.',
-  transpiler: 'babel',
+  transpiler: false,
   paths: {
     'node:*': '../node_modules/*'
   },

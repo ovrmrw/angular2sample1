@@ -1,15 +1,17 @@
 import express from 'express'
 import _ from 'lodash'
 
+const express_env = require('./package.json').env.express;
+
 function invoke() {
   const app = express();
   app.set('views', __dirname + '/src');
   app.set('view engine', 'jade');
   app.use(express.static(__dirname)); // プロジェクトのルートフォルダになるようにする
-  const mode: string = _.trim(app.get('env')); // development or production
+  const mode: string = express_env; // development or production
   
   app.get('/', (req, res) => {
-     res.redirect('/src');
+    res.redirect('/src');
   })
 
   app.get('/src', (req, res) => {

@@ -2,7 +2,17 @@
 Angular2のサンプルっぽい何かを作ります。今のところ全くの未完成。
 
 
-# How to start
+## How to setup
 ```
-npm install && gulp
+npm install && gulp compile
+```
+
+## How to run Express
+```
+gulp ex
+```
+
+## How to run Electron
+```
+gulp el
 ```
