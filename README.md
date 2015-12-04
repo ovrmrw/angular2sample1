@@ -7,12 +7,12 @@ Angular2のサンプルっぽい何かを作ります。今のところ全くの
 npm install && gulp compile
 ```
 
-## How to run Express
+## How to run on Express
 ```
 gulp ex
 ```
 
-## How to run Electron
+## How to run on Electron
 ```
 gulp el
 ```
