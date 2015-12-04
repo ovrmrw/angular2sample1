@@ -5,29 +5,43 @@ const ts = require('gulp-typescript');
 const plumber = require('gulp-plumber');
 const babel = require('gulp-babel');
 const nodemon = require('gulp-nodemon');
-const filter = require('gulp-filter')
+//const filter = require('gulp-filter')
 const browserSync = require('browser-sync').create();
+const ignore = require('gulp-ignore');
 
 /////////////////////////////////////////////////////////////////////////
 // TypeScript Compile
 
-gulp.task('tsc', () => {
-  const tsProject = ts.createProject('tsconfig.json', {noExternalResolve : true});
-  tsProject.src(['*.ts', 'src/**/*.ts'])
-    .pipe(plumber())
-    .pipe(filter(['**/**/*.ts', '!**/**/*.d.ts', '!node_modules', '!typings']))
+gulp.task('tscES5', () => {
+  const tsProject = ts.createProject('tsconfig.json', { noExternalResolve: true });
+  tsProject.src()
+  //.pipe(plumber())
+    .pipe(ignore.exclude(['src/**/*.ts', '**/*.d.ts', 'node_modules/**/*.*', 'typings/**/*.*']))
+    .pipe(ignore.include(['*.ts']))
     .pipe(ts(tsProject))
-    .js
     .pipe(babel({
       presets: ['es2015']
     }))
     .pipe(gulp.dest('.'));
 });
 
-gulp.task('compile', ['tsc']);
+gulp.task('tscES6', () => {
+  const tsProject = ts.createProject('tsconfig.json', { noExternalResolve: true });
+  tsProject.src()
+  //.pipe(plumber())
+    .pipe(ignore.exclude(['*.ts', '**/*.d.ts', 'node_modules/**/*.*', 'typings/**/*.*']))
+    .pipe(ignore.include(['src/**/*.ts']))
+    .pipe(ts(tsProject))
+  .pipe(babel({
+    presets: ['es2015']
+  }))
+    .pipe(gulp.dest('.'));
+});
+
+gulp.task('compile', ['tscES5','tscES6']);
 
 gulp.task('watch', () => {
-  gulp.watch(['*.ts', 'src/**/*.ts'], ['tsc']);
+  gulp.watch(['*.ts', 'src/**/*.ts'], ['tscES5','tscES6']);
 });
 
 /////////////////////////////////////////////////////////////////////////
@@ -42,7 +56,10 @@ gulp.task('browsersync', function () {
     files: ['src/**/*.*'], // BrowserSyncにまかせるファイル群
     proxy: 'http://localhost:3000',  // express の動作するポートにプロキシ
     port: 4000,  // BrowserSync は 4000 番ポートで起動
-    open: true  // ブラウザ open しない
+    open: true,  // ブラウザ open しない
+    reloadDelay: 1000 * 2,
+    //reloadDebounce: 1000 * 10,
+    ghostMode: false
   });
 });
 

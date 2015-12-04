@@ -1,4 +1,7 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
+import {ROUTER_DIRECTIVES} from 'angular2/router'
+import {Parent} from '../app/parent'
+import {Page2} from '../page2/page2'
 import moment from 'moment'
 declare var $: JQueryStatic;
 
@@ -14,6 +17,21 @@ const componentSelector = 'my-page1';
       {{state}}
     </div>
     <div class="row">
+      <div class="col s12 m6">
+        <div class="card blue-grey darken-1">
+          <div class="card-content white-text">
+            <span class="card-title">Card Title</span>
+            <p>I am a very simple card. I am good at containing small bits of information.
+            I am convenient because I require little markup to use effectively.</p>
+          </div>
+          <div class="card-action">
+            <a [router-link]="['/Page2']">This is a link</a>
+            <a [router-link]="['/Page2']">This is a link</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
       <!-- Modal Trigger -->
       <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
 
@@ -25,23 +43,26 @@ const componentSelector = 'my-page1';
           <h2>{{nowTime}}</h2>
         </div>
         <div class="modal-footer">
-          <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+          <a class=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
         </div>
       </div>
     </div>
-  `
+  `,
+  directives: [Page2, ROUTER_DIRECTIVES]
 })
-export class Page1 implements AfterViewInit, AfterContentInit, OnInit {
+export class Page1 extends Parent implements AfterViewInit, AfterContentInit, OnInit {
   static isJQueryPluginsInitialized: boolean = false;
+  isRouterActive: boolean = false;
   get nowTime(): string {
     return moment().format();
   }
   get value(): number {
-    return 2 ** 1;
+    return 2 ** 4;
   }
   state = "state";
   
   constructor() {
+    super();
     console.log(`${componentSelector} constructor`);
     //this.init();
   }
@@ -53,27 +74,7 @@ export class Page1 implements AfterViewInit, AfterContentInit, OnInit {
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
-    this.initJQueryPlugins();    
-  }
-  initJQueryPlugins() {
-    (async() => {
-      console.log('async start')
-      if (!Page1.isJQueryPluginsInitialized) {
-        // for (let i = 0; i < 100; i++) {
-        //   if ('$' in window) {
-        //     break;
-        //   } else {
-        //     console.log('$ not in window');
-        //     await new Promise(resolve => {
-        //       setTimeout(() => { resolve() }, 100);
-        //     });
-        //   }
-        // }
-        console.log(`${componentSelector} jquery initialized`);
-        $(`${componentSelector} .modal-trigger`).leanModal();
-        Page1.isJQueryPluginsInitialized = true;
-      }
-      console.log('async end')
-    })();
+    if(!Page1.isJQueryPluginsInitialized)
+      Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);    
   }
 }

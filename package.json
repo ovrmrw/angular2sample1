@@ -17,10 +17,6 @@
     "url": "https://github.com/ovrmrw/angular2sample1/issues"
   },
   "homepage": "https://github.com/ovrmrw/angular2sample1#readme",
-  "env": {
-    "express": "production",
-    "electron": "jade"
-  },
   "dependencies": {
     "angular2": "^2.0.0-alpha.47",
     "co": "^4.6.0",
@@ -36,11 +32,11 @@
     "systemjs": "^0.19.6"
   },
   "devDependencies": {
-    "babel": "^6.1.18",
-    "babel-cli": "^6.2.0",
+    "babel": "6.1.18",
     "babel-polyfill": "^6.2.0",
     "babel-preset-es2015": "^6.1.18",
     "browser-sync": "^2.10.0",
+    "dotenv": "^1.2.0",
     "electron-prebuilt": "^0.35.2",
     "electron-reload": "^0.2.0",
     "express": "^4.13.3",
@@ -48,6 +44,7 @@
     "gulp-babel": "^6.1.1",
     "gulp-electron": "0.0.9",
     "gulp-filter": "^3.0.1",
+    "gulp-ignore": "^2.0.1",
     "gulp-nodemon": "^2.0.4",
     "gulp-plumber": "^1.0.1",
     "gulp-protractor": "^2.1.0",
