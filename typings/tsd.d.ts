@@ -12,3 +12,4 @@
 /// <reference path="serve-static/serve-static.d.ts" />
 /// <reference path="validator/validator.d.ts" />
 /// <reference path="whatwg-fetch/whatwg-fetch.d.ts" />
+/// <reference path="systemjs/systemjs.d.ts" />

@@ -77,3 +77,11 @@ app.on('ready', function () {
     mainWindow = null;
   });
 });
+
+/////////////////////////////////////////////////////////////////////////////
+
+exports.helloCallback = function(name) {
+  return 'Hello ' + name;
+}
+
+exports.projectRoot = __dirname;

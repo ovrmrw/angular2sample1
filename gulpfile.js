@@ -38,10 +38,23 @@ gulp.task('tscES6', () => {
     .pipe(gulp.dest('.'));
 });
 
-gulp.task('compile', ['tscES5','tscES6']);
+gulp.task('tsc', () => {
+  const tsProject = ts.createProject('tsconfig.json', { noExternalResolve: true });
+  tsProject.src()
+    .pipe(plumber())
+    .pipe(ignore.exclude(['**/*.d.ts', 'node_modules/**/*.*', 'typings/**/*.*']))
+    .pipe(ignore.include(['*.ts', 'src/**/*.ts']))
+    .pipe(ts(tsProject))
+    .pipe(babel({
+      presets: ['es2015']
+    }))
+    .pipe(gulp.dest('.'));
+});
+
+gulp.task('compile', ['tsc']);
 
 gulp.task('watch', () => {
-  gulp.watch(['*.ts', 'src/**/*.ts'], ['tscES5','tscES6']);
+  gulp.watch(['*.ts', 'src/**/*.ts'], ['tsc']);
 });
 
 /////////////////////////////////////////////////////////////////////////

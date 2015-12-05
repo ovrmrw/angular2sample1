@@ -1,3 +1,5 @@
+declare var $:JQueryStatic;
+
 export class Parent {
   initJQueryPlugins(selector: string) {
     //(async() => {

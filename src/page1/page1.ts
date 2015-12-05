@@ -3,6 +3,9 @@ import {ROUTER_DIRECTIVES} from 'angular2/router'
 import {Parent} from '../app/parent'
 import {Page2} from '../page2/page2'
 import moment from 'moment'
+import _ from 'lodash'
+import numeral from 'numeral'
+import prominence from 'prominence'
 declare var $: JQueryStatic;
 
 const componentSelector = 'my-page1';
@@ -12,17 +15,13 @@ const componentSelector = 'my-page1';
   template: `
     <div class="row">
       <h2>Page1</h2>
-      {{nowTime}}
-      {{value}}
-      {{state}}
     </div>
     <div class="row">
-      <div class="col s12 m6">
-        <div class="card blue-grey darken-1">
-          <div class="card-content white-text">
-            <span class="card-title">Card Title</span>
-            <p>I am a very simple card. I am good at containing small bits of information.
-            I am convenient because I require little markup to use effectively.</p>
+      <div class="col s6 m4 l3" *ng-for="#card of cards">
+        <div class="card yellow lighten-3 waves-effect waves-light" [router-link]="['/Page2']">
+          <div class="card-content black-text">
+            <span class="card-title">{{card.title}}</span>
+            <p>{{card.body}}</p>
           </div>
           <div class="card-action">
             <a [router-link]="['/Page2']">This is a link</a>
@@ -52,19 +51,27 @@ const componentSelector = 'my-page1';
 })
 export class Page1 extends Parent implements AfterViewInit, AfterContentInit, OnInit {
   static isJQueryPluginsInitialized: boolean = false;
+  cards: Card[];
   isRouterActive: boolean = false;
-  get nowTime(): string {
-    return moment().format();
+      get nowTime(): string {
+        return moment().format();
+      }
+      get value(): number {
+        return 2 ** 4;
+      }
+
+  loadCards() {
+    const remote = System._nodeRequire('remote'); // ElectronのremoteモジュールをSystem.jsからrequireする 
+    const jsonfile = remote.require('jsonfile'); // remote経由でrequire('jsonfile')
+    const filepath = './cards.json';
+    (async () => { // async/awaitでPromiseから値を取り出す
+      this.cards = await prominence(jsonfile).readFile(filepath, "utf-8");   
+    })();
   }
-  get value(): number {
-    return 2 ** 4;
-  }
-  state = "state";
   
   constructor() {
     super();
     console.log(`${componentSelector} constructor`);
-    //this.init();
   }
   ngOnInit(){
     console.log(`${componentSelector} onInit`);    
@@ -75,6 +82,8 @@ export class Page1 extends Parent implements AfterViewInit, AfterContentInit, On
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
     if(!Page1.isJQueryPluginsInitialized)
-      Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);    
+      Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);  
+      
+    this.loadCards();  
   }
 }

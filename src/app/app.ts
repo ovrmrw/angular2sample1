@@ -44,7 +44,7 @@ import {Page2} from '../page2/page2'
   directives: [Page1, Page2, ROUTER_DIRECTIVES]
 })
 @RouteConfig([
-  new Route({ path: '/p1', component: Page1, name: 'Page1' }),
+  new Route({ path: '/p1', component: Page1, name: 'Page1', useAsDefault: true }),
   new Route({ path: '/p2', component: Page2, name: 'Page2' }),
   //new Route({ path: '/p3', component: Page3, name: 'Page3' }),
 ])

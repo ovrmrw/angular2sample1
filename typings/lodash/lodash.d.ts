@@ -13531,5 +13531,5 @@ declare module _ {
 }
 
 declare module "lodash" {
-    export default _;
+    export = _;
 }
