@@ -15,9 +15,9 @@ var _parent = require("../app/parent");
 
 var _page = require("../page2/page2");
 
-var _moment = require("moment");
+var _lodash = require("lodash");
 
-var _moment2 = _interopRequireDefault(_moment);
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _prominence = require("prominence");
 
@@ -83,7 +83,7 @@ var _Page = (function (_Parent) {
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Page1).call(this));
 
-        _this.isRouterActive = false;
+        _this.cards = [];
         console.log(componentSelector + " constructor");
         return _this;
     }
@@ -93,11 +93,14 @@ var _Page = (function (_Parent) {
         value: function loadCards() {
             var _this2 = this;
 
+            var searchWord = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
             var remote = System._nodeRequire('remote'); // ElectronのremoteモジュールをSystem.jsからrequireする
             var jsonfile = remote.require('jsonfile'); // remote経由でrequire('jsonfile')
             var filepath = './cards.json';
             (function () {
                 return __awaiter(_this2, void 0, Promise, regeneratorRuntime.mark(function _callee() {
+                    var cards, words;
                     return regeneratorRuntime.wrap(function _callee$(_context) {
                         while (1) {
                             switch (_context.prev = _context.next) {
@@ -106,9 +109,23 @@ var _Page = (function (_Parent) {
                                     return (0, _prominence2.default)(jsonfile).readFile(filepath, "utf-8");
 
                                 case 2:
-                                    this.cards = _context.sent;
+                                    cards = _context.sent;
 
-                                case 3:
+                                    if (searchWord) {
+                                        words = _lodash2.default.words(searchWord);
+
+                                        console.log(words);
+                                        words.forEach(function (word) {
+                                            cards = _lodash2.default.filter(cards, function (card) {
+                                                return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
+                                            });
+                                        });
+                                        this.cards = cards;
+                                    } else {
+                                        this.cards = cards;
+                                    }
+
+                                case 4:
                                 case "end":
                                     return _context.stop();
                             }
@@ -116,6 +133,13 @@ var _Page = (function (_Parent) {
                     }, _callee, this);
                 }));
             })();
+        }
+    }, {
+        key: "onChangeWord",
+        value: function onChangeWord(event) {
+            var value = event.target.value;
+            this.loadCards(value);
+            _Page.savedWord = value;
         }
     }, {
         key: "ngOnInit",
@@ -132,17 +156,9 @@ var _Page = (function (_Parent) {
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
             if (!_Page.isJQueryPluginsInitialized) _Page.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);
-            this.loadCards();
-        }
-    }, {
-        key: "nowTime",
-        get: function get() {
-            return (0, _moment2.default)().format();
-        }
-    }, {
-        key: "value",
-        get: function get() {
-            return Math.pow(2, 4);
+            var value = _Page.savedWord;
+            this.loadCards(value);
+            $('#searchWord').focus();
         }
     }]);
 
@@ -150,8 +166,9 @@ var _Page = (function (_Parent) {
 })(_parent.Parent);
 exports.Page1 = _Page;
 _Page.isJQueryPluginsInitialized = false;
+_Page.savedWord = '';
 exports.Page1 = _Page = __decorate([(0, _angular.Component)({
     selector: componentSelector,
-    template: "\n    <div class=\"row\">\n      <h2>Page1</h2>\n    </div>\n    <div class=\"row\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card yellow lighten-3 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content black-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">This is a link</a>\n            <a [router-link]=\"['/Page2']\">This is a link</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
+    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <!--<div class=\"row\">\n      <form class=\"col s12\">\n        <div class=\"row\">\n          <div class=\"input-field col s6\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>-->\n    <div class=\"row\" *ng-if=\"cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">This is a link</a>\n            <a [router-link]=\"['/Page2']\">This is a link</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
     directives: [_page.Page2, _router.ROUTER_DIRECTIVES]
 }), __metadata('design:paramtypes', [])], _Page);

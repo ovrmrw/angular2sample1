@@ -10,9 +10,8 @@ import {Page2} from '../page2/page2'
       <div class="nav-wrapper">
         <a href="#" class="brand-logo right">Angular2 Sample1</a>
         <ul id="nav-mobile" class="left hide-on-small-and-down"><!-- classにhide-on-med-and-downを設定するとElectronで表示されない -->
-          <li id="nav1" [class.active]="getLinkStyle('/p1')"><a [router-link]="['/Page1']" class="waves-effect waves-light"><i class="material-icons left">done</i>PAGE1</a></li>
-          <li id="nav2" [class.active]="getLinkStyle('/p2')"><a [router-link]="['/Page2']" class="waves-effect waves-light"><i class="material-icons left">done</i>PAGE2</a></li>
-          <li [class.active]="isActive"><a href="collapsible.html">JavaScript</a></li>
+          <li id="nav1" [class.active]="getLinkStyle('/p1')"><a [router-link]="['/Page1']" class="waves-effect waves-light"><i class="material-icons left">view_module</i>Card List</a></li>
+          <li id="nav2" [class.active]="getLinkStyle('/p2')"><a [router-link]="['/Page2']" class="waves-effect waves-light"><i class="material-icons left">description</i>Card Editor</a></li>
         </ul>
       </div>
     </nav>
@@ -46,7 +45,6 @@ import {Page2} from '../page2/page2'
 @RouteConfig([
   new Route({ path: '/p1', component: Page1, name: 'Page1', useAsDefault: true }),
   new Route({ path: '/p2', component: Page2, name: 'Page2' }),
-  //new Route({ path: '/p3', component: Page3, name: 'Page3' }),
 ])
 export class App {
   state = "state";
