@@ -5,7 +5,6 @@ const ts = require('gulp-typescript');
 const plumber = require('gulp-plumber');
 const babel = require('gulp-babel');
 const nodemon = require('gulp-nodemon');
-//const filter = require('gulp-filter')
 const browserSync = require('browser-sync').create();
 const ignore = require('gulp-ignore');
 

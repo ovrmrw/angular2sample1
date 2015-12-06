@@ -1,5 +1,6 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES} from 'angular2/router'
+import {Http,Response, HTTP_PROVIDERS} from 'angular2/http'
 import {Parent} from '../app/parent'
 import {Page2} from '../page2/page2'
 import moment from 'moment'
@@ -36,7 +37,7 @@ const componentSelector = 'my-page1';
         </div>
       </form>
     </div>-->
-    <div class="row" *ng-if="cards.length > 0">
+    <div class="row" *ng-if="cards && cards.length > 0">
       <div class="col s6 m4 l3" *ng-for="#card of cards">
         <div class="card orange darken-2 waves-effect waves-light" [router-link]="['/Page2']">
           <div class="card-content white-text">
@@ -44,13 +45,12 @@ const componentSelector = 'my-page1';
             <p>{{card.body}}</p>
           </div>
           <div class="card-action">
-            <a [router-link]="['/Page2']">This is a link</a>
-            <a [router-link]="['/Page2']">This is a link</a>
+            <a [router-link]="['/Page2']">Card Editor</a>
           </div>
         </div>
       </div>
     </div>
-    <div class="row" *ng-if="cards.length == 0">
+    <div class="row" *ng-if="cards && cards.length == 0">
       <div class="col s12">
         <h3 class="pink lighten-2 white-text">No Results</h3>
       </div>
@@ -72,43 +72,17 @@ const componentSelector = 'my-page1';
       </div>
     </div>
   `,
-  directives: [Page2, ROUTER_DIRECTIVES]
+  directives: [Page2, ROUTER_DIRECTIVES],
+  providers:[HTTP_PROVIDERS]
 })
 export class Page1 extends Parent implements AfterViewInit, AfterContentInit, OnInit {
   static isJQueryPluginsInitialized: boolean = false;
   static savedWord: string = '';
   cards: Card[] = [];
-
-  loadCards(searchWord: string = '') {
-    const remote = System._nodeRequire('remote'); // ElectronのremoteモジュールをSystem.jsからrequireする 
-    const jsonfile = remote.require('jsonfile'); // remote経由でrequire('jsonfile')
-    const filepath = './cards.json';
-    (async() => { // async/awaitでPromiseから値を取り出す
-      let cards = await prominence(jsonfile).readFile(filepath, "utf-8") as Card[];
-      if (searchWord) {
-        const words = _.words(searchWord);
-        console.log(words);
-        words.forEach(word => {
-          cards = _.filter(cards, card => {
-            return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
-          });
-        });
-        this.cards = cards;
-      } else {
-        this.cards = cards;
-      }
-    })();
-  }
-
-  onChangeWord(event:KeyboardEvent) {
-    const value = event.target.value;
-    this.loadCards(value);
-    Page1.savedWord = value;
-  }
-  
-  constructor() {
+ 
+  constructor(public http: Http) {
     super();
-    console.log(`${componentSelector} constructor`);    
+    console.log(`${componentSelector} constructor`);     
   }
   ngOnInit(){
     console.log(`${componentSelector} onInit`);    
@@ -125,4 +99,27 @@ export class Page1 extends Parent implements AfterViewInit, AfterContentInit, On
     this.loadCards(value);  
     $('#searchWord').focus();
   }
+  
+  onChangeWord(event:KeyboardEvent) {
+    const value = event.target.value;
+    this.loadCards(value);
+    Page1.savedWord = value;
+  }
+  
+  loadCards(searchWord: string = '') {
+    (async() => {
+      let cards = await this.http.get('/cards.json')
+        .map((res:Response) => res.json() as Card[])
+        .toPromise(Promise);
+      if (searchWord) {
+        const words = _.words(searchWord);
+        words.forEach(word => {
+          cards = _.filter(cards, card => {
+            return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
+          });
+        });
+      }
+      this.cards = cards;
+    })();
+  }  
 }

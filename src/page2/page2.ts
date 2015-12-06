@@ -8,7 +8,7 @@ const componentSelector = 'my-page2';
   selector: componentSelector,
   template: `
     <div class="row">
-      <h2>Page2</h2>
+      <h2>Card Editor</h2>
     </div>
     <div class="row">
       <!-- Modal Trigger -->

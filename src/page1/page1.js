@@ -11,6 +11,8 @@ var _angular = require("angular2/angular2");
 
 var _router = require("angular2/router");
 
+var _http = require("angular2/http");
+
 var _parent = require("../app/parent");
 
 var _page = require("../page2/page2");
@@ -18,10 +20,6 @@ var _page = require("../page2/page2");
 var _lodash = require("lodash");
 
 var _lodash2 = _interopRequireDefault(_lodash);
-
-var _prominence = require("prominence");
-
-var _prominence2 = _interopRequireDefault(_prominence);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -78,70 +76,18 @@ var componentSelector = 'my-page1';
 var _Page = (function (_Parent) {
     _inherits(Page1, _Parent);
 
-    function Page1() {
+    function Page1(http) {
         _classCallCheck(this, Page1);
 
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Page1).call(this));
 
+        _this.http = http;
         _this.cards = [];
         console.log(componentSelector + " constructor");
         return _this;
     }
 
     _createClass(Page1, [{
-        key: "loadCards",
-        value: function loadCards() {
-            var _this2 = this;
-
-            var searchWord = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-
-            var remote = System._nodeRequire('remote'); // ElectronのremoteモジュールをSystem.jsからrequireする
-            var jsonfile = remote.require('jsonfile'); // remote経由でrequire('jsonfile')
-            var filepath = './cards.json';
-            (function () {
-                return __awaiter(_this2, void 0, Promise, regeneratorRuntime.mark(function _callee() {
-                    var cards, words;
-                    return regeneratorRuntime.wrap(function _callee$(_context) {
-                        while (1) {
-                            switch (_context.prev = _context.next) {
-                                case 0:
-                                    _context.next = 2;
-                                    return (0, _prominence2.default)(jsonfile).readFile(filepath, "utf-8");
-
-                                case 2:
-                                    cards = _context.sent;
-
-                                    if (searchWord) {
-                                        words = _lodash2.default.words(searchWord);
-
-                                        console.log(words);
-                                        words.forEach(function (word) {
-                                            cards = _lodash2.default.filter(cards, function (card) {
-                                                return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
-                                            });
-                                        });
-                                        this.cards = cards;
-                                    } else {
-                                        this.cards = cards;
-                                    }
-
-                                case 4:
-                                case "end":
-                                    return _context.stop();
-                            }
-                        }
-                    }, _callee, this);
-                }));
-            })();
-        }
-    }, {
-        key: "onChangeWord",
-        value: function onChangeWord(event) {
-            var value = event.target.value;
-            this.loadCards(value);
-            _Page.savedWord = value;
-        }
-    }, {
         key: "ngOnInit",
         value: function ngOnInit() {
             console.log(componentSelector + " onInit");
@@ -160,6 +106,55 @@ var _Page = (function (_Parent) {
             this.loadCards(value);
             $('#searchWord').focus();
         }
+    }, {
+        key: "onChangeWord",
+        value: function onChangeWord(event) {
+            var value = event.target.value;
+            this.loadCards(value);
+            _Page.savedWord = value;
+        }
+    }, {
+        key: "loadCards",
+        value: function loadCards() {
+            var _this2 = this;
+
+            var searchWord = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+            (function () {
+                return __awaiter(_this2, void 0, Promise, regeneratorRuntime.mark(function _callee() {
+                    var cards, words;
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                        while (1) {
+                            switch (_context.prev = _context.next) {
+                                case 0:
+                                    _context.next = 2;
+                                    return this.http.get('/cards.json').map(function (res) {
+                                        return res.json();
+                                    }).toPromise(Promise);
+
+                                case 2:
+                                    cards = _context.sent;
+
+                                    if (searchWord) {
+                                        words = _lodash2.default.words(searchWord);
+
+                                        words.forEach(function (word) {
+                                            cards = _lodash2.default.filter(cards, function (card) {
+                                                return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
+                                            });
+                                        });
+                                    }
+                                    this.cards = cards;
+
+                                case 5:
+                                case "end":
+                                    return _context.stop();
+                            }
+                        }
+                    }, _callee, this);
+                }));
+            })();
+        }
     }]);
 
     return Page1;
@@ -169,6 +164,8 @@ _Page.isJQueryPluginsInitialized = false;
 _Page.savedWord = '';
 exports.Page1 = _Page = __decorate([(0, _angular.Component)({
     selector: componentSelector,
-    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <!--<div class=\"row\">\n      <form class=\"col s12\">\n        <div class=\"row\">\n          <div class=\"input-field col s6\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>-->\n    <div class=\"row\" *ng-if=\"cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">This is a link</a>\n            <a [router-link]=\"['/Page2']\">This is a link</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
-    directives: [_page.Page2, _router.ROUTER_DIRECTIVES]
-}), __metadata('design:paramtypes', [])], _Page);
+    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <!--<div class=\"row\">\n      <form class=\"col s12\">\n        <div class=\"row\">\n          <div class=\"input-field col s6\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>-->\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
+    directives: [_page.Page2, _router.ROUTER_DIRECTIVES],
+    providers: [_http.HTTP_PROVIDERS]
+}), __metadata('design:paramtypes', [typeof (_a = typeof _http.Http !== 'undefined' && _http.Http) === 'function' && _a || Object])], _Page);
+var _a;
