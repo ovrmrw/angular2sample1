@@ -4,6 +4,7 @@ System.config({
   transpiler: false,
   paths: {
     'node:*': '../node_modules/*',
+    
   },
   map: {
     'babel-polyfill': 'node:babel-polyfill/dist/polyfill.min.js',
@@ -11,7 +12,7 @@ System.config({
     'moment': 'node:moment/min/moment.min.js', // app.tsのimportで必要
     'lodash': 'node:lodash/index.js', // app.tsのimportで必要
     'prominence': 'node:prominence/lib/prominence.js',
-    //'jsonfile': 'node:jsonfile/index.js',
+    //'@reactivex/rxjs': 'node:@reactivex/rxjs/index.js'
   },
   packages: {
     'app': { defaultExtension: 'js' },
