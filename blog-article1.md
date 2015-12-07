@@ -18,8 +18,8 @@ title: Web開発初心者がAngular2で嵌まったり解決したりサンプ�
 * 最後に
 
 ### はじめに
-みなさんAngular2使ってますか？ 使ってませんよね、だってまだalphaバージョンだもん。  
-でも僕は最近妙にハマってます。公式チュートリアルがすごくわかりやすくて直観的だったから。まあalpha故に別の意味でも度々ハマってますけども。  
+みなさんAngular2使ってますか？ 使ってませんよね、だってまだalphaバージョンだもん。(先日も破壊的な更新があったし…)  
+でも僕は最近妙にハマってます。公式チュートリアルがすごくわかりやすくて直観的だったから。まあalpha故に別の意味でも度々ハマってますけれども。  
 
 ちなみに僕は**Web開発の経験はほとんどない**し**Angular1もよくわかってない**、なんでここに参加してるのかよくわからない出自の者なのですが、
 普段は基幹業務系のSIerです。どちらかというとフロントエンドよりもサーバーサイド寄りです。Angular2以外に触れたことのあるフレームワークと言えば[Knockout](http://knockoutjs.com/)と[Aurelia](http://aurelia.io/)くらいです。  
@@ -173,6 +173,8 @@ System.config({
 ```
 System.jsは**ブラウザ上でのimportやrequireをフックする(本来の機能を上書きする)もの**なので、
 `System.config()`がちゃんと設定されていないと`ts`ファイルで`import _ from 'lodash'`とか書いても無駄ですので注意しましょう。  
+`meta`プロパティでやっていることは、`/src/app/*.js`ファイルが読み込まれたら一緒にbabel-polyfillを読み込む、という指示です。
+現状はこれがないとasync/awaitが動きませんので注意してください。
 僕は当初System.jsがrequireやimportにどう影響を及ぼしているか理解していなかったので何時間か嵌りました。
 
 (関連過去記事 [TypeScript + System.jsの構成におけるSystem.config()の基本パターン。](http://overmorrow.hatenablog.com/entry/2015/11/15/213830))
@@ -208,10 +210,10 @@ gulp.task('watch', () => {
 `tsconfig.json`ファイルの中で`target: ES6`と指定しているので、(1)の段階でTypeScriptから**ES6のJavaScript**に変換されます。
 でもこれだけだと現状のブラウザでは動かないんですね。もう一度変換する必要があります。  
 次の(2)の段階でBabelに通してようやくブラウザで動く**ES5のJavaScript**に変換されます。  
-これでC#erが泣いて喜ぶ**async/awaitが動くES5のJavaScriptファイル**の完成ですよ。
+これでC#erが泣いて喜ぶ**async/awaitが動くES5のJavaScriptファイル**の完成ですよ。(細かいことを言えばさらにbabel-polyfillが必要です)
 
 処理速度を気にしなければブラウザ上で実行時にBabelで変換するというやり方もあったのですが、
-最新版のBabelでは非推奨になっているのと公式サイトからもやり方が消えてしまったので**今後は実行時コンパイルはやるな**、ということなのだと思います。    
+最新版のBabelでは非推奨になっているのと公式サイトからもやり方が消えてしまったので**今後はブラウザ環境で実行時コンパイルをやるな**、ということなのだと思います。    
 僕はgulpfileの書き方で何時間か嵌りました。
 
 
@@ -257,7 +259,7 @@ bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLoca
 
 ## Part5 Httpモジュールを使ってみよう(async/await登場)
 公式チュートリアルにはHttpモジュールの使い方も説明されていません。  
-最もシンプルに説明するにはどうしたらいいかなって思って、でもasync/awaitも書きたいしって思ってたらこうなりました。
+最もシンプルに説明するにはどうしたらいいかな、でもasync/awaitも書きたいしって思ってたらこうなりました。
 ```javascript
 import {Component} from 'angular2/angular2'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
@@ -320,7 +322,7 @@ export class Page1 {
 
 Angular2のHttpモジュールはネットで調べるとわかるように、敢えてPromiseではなくrxjsのObservableを採用しています。  
 そしてその場合、通例では`map()`の次に`subscribe()`で受けてそこでその後の処理を書くわけなんですが、それだと`then()`と大して変わらないし、
-せっかくasync/awaitやってるんだからawaitできるように`toPromise()`でPromise型に変換して返したいよねって思ってこういう結果になりました。
+せっかくasync/awaitやってるんだからawaitできるように`toPromise()`でPromise型に変換して返したいよねって思ってたらこういう結果になりました。
 
 ちなみにHttpモジュールを使うときはHTMLファイルで…
 ```html
@@ -353,7 +355,7 @@ const remote = System._nodeRequire('remote');
 
 ## Part7 Electronで初心者が嵌りそうなこと(jqueryプラグイン編)
 僕がよく使うライブラリの中で、lodash, moment, numeralあたりはPart1の方法でHTMLから`<script src=...`を追放できます。  
-が、jqueryとそのプラグインだけは例外であり、**Expressのようなブラウザ環境とElectron環境で両立する**ような書き方は工夫が必要です。
+が、jqueryとそのプラグインだけは例外であり、**Expressのようなブラウザ環境とElectron環境で両立する書き方**は工夫が必要です。
 
 ネットで色々調べた結果、最もシンプルな解決策はこれだろうという結論に達したのがこれです。HTMLファイルの中に書きます。
 ```html
@@ -442,14 +444,14 @@ export class Page2 implements OnInit, AfterContentInit, AfterViewInit {
 ---
 
 ## 最後に
-嵌ってばかりでしつこいと思われるかもしれませんが僕にしてみればWeb開発は嵌ってることの方が多いです。  
+嵌ってばかりでしつこいと思われるかもしれませんが僕にしてみれば**Web開発は嵌ってることの方が多い**です。  
 何か一行書くためだけに何時間かネットで調べて、やってみてダメだからまた調べに行って、トライ＆エラーの繰り返し。よくみんなこんなことやってられますねw  
 そもそもWeb開発の最前線にいるわけでもない僕が書いたものなので、ところどころ筋違いなことを書いていたり理解できない部分があったかもしれません。
 各章に参考文献へのリンクも記載しようかなとも思ったのですが、思い出せないものもたくさんあるしほとんど英語なので思い切ってばっさりなくしてしまいました。  
 
-KnockoutのチュートリアルでJavaScriptを覚えて、AureliaのチュートリアルでモダンWeb開発をなんとなく知って、TypeScriptでようやくWebにも秩序が生まれるかなと思ったところに
-TypeScriptネイティブのAngular2の登場ですよ。Angular1を知らない僕でもこれならなんとかなるかなと思って手を出して以来、少し僕の中にも知見が積み上がってきたので
-こうして思い切ってAdvent Calenderに投稿してみた次第です。  
+KnockoutのチュートリアルでJavaScriptを覚えて、AureliaのチュートリアルでモダンWeb開発に触れて、TypeScriptでようやくWebにも秩序が生まれるかなと思ったところに
+TypeScriptネイティブのAngular2の登場ですよ。Angular1を知らない僕でもこれならなんとかなるかなと思って手を出して以来、少し僕の中にも知見が積み上がってきた気がしたので
+こうして思い切ってAdvent Calendarに投稿してみた次第です。  
 どれか一つでもこれからAngular2を触る人の助けになれば幸いです。
 
 ここまで読んでいただいてありがとうございました。

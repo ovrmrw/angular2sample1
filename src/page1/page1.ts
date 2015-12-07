@@ -1,6 +1,7 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
-import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction} from 'angular2/router'
+import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
+import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {Http,Response, HTTP_PROVIDERS} from 'angular2/http'
+import {Observable} from 'angular2/core'
 import {Parent} from '../app/parent'
 import {Page2} from '../page2/page2'
 import moment from 'moment'
@@ -9,6 +10,10 @@ import numeral from 'numeral'
 import prominence from 'prominence'
 declare var $: JQueryStatic;
 declare var Materialize: any;
+declare interface Subscription{
+  isUnsubscribed: boolean,
+  unsubscribe: ()=>void  
+}
 
 const componentSelector = 'my-page1';
 
@@ -22,24 +27,13 @@ const componentSelector = 'my-page1';
       <form class="col s12 m12 l8">
         <div class="row">
           <div class="input-field col s12">
-            <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)">
-            <!-- <input id="searchWord" type="text" class="validate"> -->
+            <!-- <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)"> -->
+            <input id="searchWord" type="text" class="validate tooltipped" data-position="bottom" data-delay="50" data-tooltip="Input search words">
             <label for="searchWord">Search Word</label>
           </div>
         </div>
       </form>
     </div>
-    <!--<div class="row">
-      <form class="col s12">
-        <div class="row">
-          <div class="input-field col s6">
-            <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)">
-            <input id="searchWord" type="text" class="validate">
-            <label for="searchWord">Search Word</label>
-          </div>
-        </div>
-      </form>
-    </div>-->
     <div class="row" *ng-if="cards && cards.length > 0">
       <div class="col s6 m4 l3" *ng-for="#card of cards">
         <div class="card orange darken-2 waves-effect waves-light" [router-link]="['/Page2']">
@@ -78,20 +72,20 @@ const componentSelector = 'my-page1';
   directives: [Page2, ROUTER_DIRECTIVES],
   providers:[HTTP_PROVIDERS]
 })
-export class Page1 extends Parent implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate {
+export class Page1 extends Parent 
+                  implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
   static isJQueryPluginsInitialized: boolean = false;
   static isEventObservableInitialized: boolean = false;
   static savedWord: string = '';
   cards: Card[] = [];
-  //cards: Promise<Card[]>;
- 
+  disposables: Subscription[] = [];
+  set setDisposable(disposable: Subscription) {
+    this.disposables.push(disposable);
+  }
+  
   constructor(public http: Http) {
     super();
-    console.log(`${componentSelector} constructor`);     
-    // Observable.range(1,10)
-    //   //.map(i => console.log('Observable map ' + i));
-    //   .toArray()
-    //   .subscribe(i => console.log(i));
+    console.log(`${componentSelector} constructor`);
   }
   ngOnInit(){
     console.log(`${componentSelector} onInit`);    
@@ -104,9 +98,7 @@ export class Page1 extends Parent implements AfterViewInit, AfterContentInit, On
     if (!Page1.isJQueryPluginsInitialized) {
       Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);      
     }
-    if (!Page1.isEventObservableInitialized){
-      Page1.isEventObservableInitialized = this.initEventObservables();  
-    }    
+    this.initEventObservables(); // Observable.fromEvent()を初期化。
     const value = Page1.savedWord;
     this.loadCards(value);
     $('#searchWord').focus();
@@ -115,15 +107,22 @@ export class Page1 extends Parent implements AfterViewInit, AfterContentInit, On
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
     return confirm('Are you sure you want to leave?');    
   }
-  
-  onChangeWord(event:KeyboardEvent) {
-    const value = event.target.value;
-    this.loadCards(value);
-    Page1.savedWord = value;    
+  routerOnDeactivate() {
+    console.log(this.disposables);
+    this.disposables.forEach(disposable => {
+      if (!disposable.isUnsubscribed) {
+        disposable.unsubscribe();
+      }
+    });
   }
   
+  // onChangeWord(event:KeyboardEvent) {
+  //   const value = event.target.value;
+  //   this.loadCards(value);
+  //   Page1.savedWord = value;    
+  // }
+  
   loadCards(searchWord: string = ''): void {
-    console.log('loadCards:' + searchWord);
     (async() => {
       let cards: Card[] = await this.http.get('/cards.json')
         .map((res: Response) => res.json() as Card[])
@@ -136,22 +135,19 @@ export class Page1 extends Parent implements AfterViewInit, AfterContentInit, On
           });
         });
       }
-      console.log(cards);
       this.cards = cards;      
     })();
   }
 
   initEventObservables() {
-    // Observable.fromEvent($('#searchWord'), 'keyup')
-    //   .map((event: KeyboardEvent) => event.target.value)
-    //   .filter(value => value.length > 0)
-    //   .debounce<string>(() => Observable.timer(1000))
-    //   .subscribe(value => {
-    //     console.log('Observable value: ' + value);
-    //     this.loadCards(value);
-    //     Page1.savedWord = value;
-    //     Materialize.toast(`Searching with word '${value}' triggered`, 2000);
-    //   });
-    return true;
+    this.setDisposable = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
+      .map((event: KeyboardEvent) => event.target.value)
+    //.filter(value => value.length > 0)
+      .debounce<string>(() => Observable.timer(1000))
+      .subscribe(value => {
+        this.loadCards(value);
+        Page1.savedWord = value;
+        Materialize.toast(`Searching with word '${value}' triggered`, 2000);
+      });
   }
 }
