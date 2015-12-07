@@ -39,14 +39,14 @@ let mainWindow = null;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
+  // if (ELECTRON_ENV === JADE) {
+  //   fs.unlink(filePath);
+  // }
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform != 'darwin') {
     app.quit();
-  }
-  if (ELECTRON_ENV === JADE) {
-    fs.unlink(filePath);
-  }
+  }  
 });
 
 // This method will be called when Electron has finished
@@ -58,10 +58,10 @@ app.on('ready', function () {
   // and load the index.html of the app.
   //mainWindow.loadUrl('file://' + __dirname + '/src/index.html');
   if (ELECTRON_ENV === JADE) {
-    let p = path.resolve('file://', __dirname, filePath)
+    const p = path.resolve('file://', __dirname, filePath)
     mainWindow.loadURL(p);
   } else {
-    let url = 'http://' + serverInfo.host + ':' + serverInfo.port + '/src/';
+    const url = 'http://' + serverInfo.host + ':' + serverInfo.port + '/src/';
     console.log(url);
     mainWindow.loadURL(url);
   }
@@ -77,11 +77,3 @@ app.on('ready', function () {
     mainWindow = null;
   });
 });
-
-/////////////////////////////////////////////////////////////////////////////
-
-exports.helloCallback = function(name) {
-  return 'Hello ' + name;
-}
-
-exports.projectRoot = __dirname;
