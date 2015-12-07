@@ -47,7 +47,6 @@ import {Page2} from '../page2/page2'
   new Route({ path: '/p2', component: Page2, name: 'Page2' }),
 ])
 export class App {
-  state = "state";
   location: Location;
   router: Router;
   constructor(location: Location, router: Router) {

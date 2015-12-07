@@ -63,7 +63,6 @@ var App = exports.App = (function () {
     function App(location, router) {
         _classCallCheck(this, App);
 
-        this.state = "state";
         this.location = location;
         this.router = router;
     }

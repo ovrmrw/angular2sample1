@@ -78,7 +78,7 @@ gulp.task('browsersync', function () {
 gulp.task('express', ['browsersync'], function () {
   nodemon({
     script: 'express.js',
-    ext: 'js html css',
+    //ext: 'js html css',
     ignore: [  // nodemon で監視しないディレクトリ
       'node_modules',
       'typings',

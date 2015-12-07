@@ -382,8 +382,9 @@ export class Page2 implements AfterViewInit {
   static isJQueryPluginsInitialized: boolean = false;
 
   ngAfterViewInit() {
-    if(!Page2.isJQueryPluginsInitialized)
-      Page2.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);    
+    if(!Page2.isJQueryPluginsInitialized) {
+      Page2.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);
+    }
   }
   initJQueryPlugins(selector: string) {
     $(`${selector} .modal-trigger`).leanModal();

@@ -1,5 +1,5 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
-import {ROUTER_DIRECTIVES} from 'angular2/router'
+import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
+import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction} from 'angular2/router'
 import {Http,Response, HTTP_PROVIDERS} from 'angular2/http'
 import {Parent} from '../app/parent'
 import {Page2} from '../page2/page2'
@@ -8,6 +8,7 @@ import _ from 'lodash'
 import numeral from 'numeral'
 import prominence from 'prominence'
 declare var $: JQueryStatic;
+declare var Materialize: any;
 
 const componentSelector = 'my-page1';
 
@@ -22,6 +23,7 @@ const componentSelector = 'my-page1';
         <div class="row">
           <div class="input-field col s12">
             <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)">
+            <!-- <input id="searchWord" type="text" class="validate"> -->
             <label for="searchWord">Search Word</label>
           </div>
         </div>
@@ -32,6 +34,7 @@ const componentSelector = 'my-page1';
         <div class="row">
           <div class="input-field col s6">
             <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)">
+            <input id="searchWord" type="text" class="validate">
             <label for="searchWord">Search Word</label>
           </div>
         </div>
@@ -75,14 +78,20 @@ const componentSelector = 'my-page1';
   directives: [Page2, ROUTER_DIRECTIVES],
   providers:[HTTP_PROVIDERS]
 })
-export class Page1 extends Parent implements AfterViewInit, AfterContentInit, OnInit {
+export class Page1 extends Parent implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate {
   static isJQueryPluginsInitialized: boolean = false;
+  static isEventObservableInitialized: boolean = false;
   static savedWord: string = '';
   cards: Card[] = [];
+  //cards: Promise<Card[]>;
  
   constructor(public http: Http) {
     super();
     console.log(`${componentSelector} constructor`);     
+    // Observable.range(1,10)
+    //   //.map(i => console.log('Observable map ' + i));
+    //   .toArray()
+    //   .subscribe(i => console.log(i));
   }
   ngOnInit(){
     console.log(`${componentSelector} onInit`);    
@@ -92,34 +101,57 @@ export class Page1 extends Parent implements AfterViewInit, AfterContentInit, On
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
-    if(!Page1.isJQueryPluginsInitialized)
-      Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);    
-    
+    if (!Page1.isJQueryPluginsInitialized) {
+      Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);      
+    }
+    if (!Page1.isEventObservableInitialized){
+      Page1.isEventObservableInitialized = this.initEventObservables();  
+    }    
     const value = Page1.savedWord;
-    this.loadCards(value);  
+    this.loadCards(value);
     $('#searchWord').focus();
+  }
+  
+  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
+    return confirm('Are you sure you want to leave?');    
   }
   
   onChangeWord(event:KeyboardEvent) {
     const value = event.target.value;
     this.loadCards(value);
-    Page1.savedWord = value;
+    Page1.savedWord = value;    
   }
   
-  loadCards(searchWord: string = '') {
+  loadCards(searchWord: string = ''): void {
+    console.log('loadCards:' + searchWord);
     (async() => {
-      let cards = await this.http.get('/cards.json')
-        .map((res:Response) => res.json() as Card[])
+      let cards: Card[] = await this.http.get('/cards.json')
+        .map((res: Response) => res.json() as Card[])
         .toPromise(Promise);
       if (searchWord) {
-        const words = _.words(searchWord);
+        const words: string[] = _.words(searchWord);
         words.forEach(word => {
           cards = _.filter(cards, card => {
             return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
           });
         });
       }
-      this.cards = cards;
+      console.log(cards);
+      this.cards = cards;      
     })();
-  }  
+  }
+
+  initEventObservables() {
+    // Observable.fromEvent($('#searchWord'), 'keyup')
+    //   .map((event: KeyboardEvent) => event.target.value)
+    //   .filter(value => value.length > 0)
+    //   .debounce<string>(() => Observable.timer(1000))
+    //   .subscribe(value => {
+    //     console.log('Observable value: ' + value);
+    //     this.loadCards(value);
+    //     Page1.savedWord = value;
+    //     Materialize.toast(`Searching with word '${value}' triggered`, 2000);
+    //   });
+    return true;
+  }
 }

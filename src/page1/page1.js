@@ -76,6 +76,8 @@ var componentSelector = 'my-page1';
 var _Page = (function (_Parent) {
     _inherits(Page1, _Parent);
 
+    //cards: Promise<Card[]>;
+
     function Page1(http) {
         _classCallCheck(this, Page1);
 
@@ -84,6 +86,10 @@ var _Page = (function (_Parent) {
         _this.http = http;
         _this.cards = [];
         console.log(componentSelector + " constructor");
+        // Observable.range(1,10)
+        //   //.map(i => console.log('Observable map ' + i));
+        //   .toArray()
+        //   .subscribe(i => console.log(i));
         return _this;
     }
 
@@ -101,10 +107,20 @@ var _Page = (function (_Parent) {
         key: "ngAfterViewInit",
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
-            if (!_Page.isJQueryPluginsInitialized) _Page.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);
+            if (!_Page.isJQueryPluginsInitialized) {
+                _Page.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);
+            }
+            if (!_Page.isEventObservableInitialized) {
+                _Page.isEventObservableInitialized = this.initEventObservables();
+            }
             var value = _Page.savedWord;
             this.loadCards(value);
             $('#searchWord').focus();
+        }
+    }, {
+        key: "routerCanDeactivate",
+        value: function routerCanDeactivate(next, prev) {
+            return confirm('Are you sure you want to leave?');
         }
     }, {
         key: "onChangeWord",
@@ -120,6 +136,7 @@ var _Page = (function (_Parent) {
 
             var searchWord = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
+            console.log('loadCards:' + searchWord);
             (function () {
                 return __awaiter(_this2, void 0, Promise, regeneratorRuntime.mark(function _callee() {
                     var cards, words;
@@ -144,9 +161,10 @@ var _Page = (function (_Parent) {
                                             });
                                         });
                                     }
+                                    console.log(cards);
                                     this.cards = cards;
 
-                                case 5:
+                                case 6:
                                 case "end":
                                     return _context.stop();
                             }
@@ -155,16 +173,32 @@ var _Page = (function (_Parent) {
                 }));
             })();
         }
+    }, {
+        key: "initEventObservables",
+        value: function initEventObservables() {
+            // Observable.fromEvent($('#searchWord'), 'keyup')
+            //   .map((event: KeyboardEvent) => event.target.value)
+            //   .filter(value => value.length > 0)
+            //   .debounce<string>(() => Observable.timer(1000))
+            //   .subscribe(value => {
+            //     console.log('Observable value: ' + value);
+            //     this.loadCards(value);
+            //     Page1.savedWord = value;
+            //     Materialize.toast(`Searching with word '${value}' triggered`, 2000);
+            //   });
+            return true;
+        }
     }]);
 
     return Page1;
 })(_parent.Parent);
 exports.Page1 = _Page;
 _Page.isJQueryPluginsInitialized = false;
+_Page.isEventObservableInitialized = false;
 _Page.savedWord = '';
 exports.Page1 = _Page = __decorate([(0, _angular.Component)({
     selector: componentSelector,
-    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <!--<div class=\"row\">\n      <form class=\"col s12\">\n        <div class=\"row\">\n          <div class=\"input-field col s6\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>-->\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
+    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <!-- <input id=\"searchWord\" type=\"text\" class=\"validate\"> -->\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <!--<div class=\"row\">\n      <form class=\"col s12\">\n        <div class=\"row\">\n          <div class=\"input-field col s6\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\">\n            <input id=\"searchWord\" type=\"text\" class=\"validate\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>-->\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
     directives: [_page.Page2, _router.ROUTER_DIRECTIVES],
     providers: [_http.HTTP_PROVIDERS]
 }), __metadata('design:paramtypes', [typeof (_a = typeof _http.Http !== 'undefined' && _http.Http) === 'function' && _a || Object])], _Page);
