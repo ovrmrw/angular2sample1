@@ -12,7 +12,7 @@ var AppParent = exports.AppParent = (function () {
     function AppParent() {
         _classCallCheck(this, AppParent);
 
-        this.disposableSubscriptions = [];
+        this._disposableSubscriptions = [];
     }
 
     _createClass(AppParent, [{
@@ -24,19 +24,34 @@ var AppParent = exports.AppParent = (function () {
     }, {
         key: 'disposeSubscriptions',
         value: function disposeSubscriptions() {
-            this.disposableSubscriptions.forEach(function (s) {
-                if (!s.isUnsubscribed) {
-                    s.unsubscribe();
+            this.disposableSubscriptions.forEach(function (subscription) {
+                if (!subscription.isUnsubscribed) {
+                    subscription.unsubscribe();
                 }
             });
-            this.disposableSubscriptions = [];
+            this._disposableSubscriptions = [];
         }
     }, {
-        key: 'setDisposableSubscription',
+        key: 'isJQueryPluginsInitialized',
+        get: function get() {
+            return AppParent._isJQueryPluginsInitialized;
+        },
+        set: function set(flag) {
+            AppParent._isJQueryPluginsInitialized = flag;
+        }
+    }, {
+        key: 'disposableSubscriptions',
+        get: function get() {
+            return this._disposableSubscriptions;
+        }
+    }, {
+        key: 'disposableSubscription',
         set: function set(subscription) {
-            this.disposableSubscriptions.push(subscription);
+            this._disposableSubscriptions.push(subscription);
         }
     }]);
 
     return AppParent;
 })();
+
+AppParent._isJQueryPluginsInitialized = false;

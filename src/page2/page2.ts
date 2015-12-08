@@ -1,5 +1,5 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
-import {AppParent} from '../app/parent'
+import {AppParent} from '../app/app-parent'
 declare var $: JQueryStatic;
 
 const componentSelector = 'my-page2';
@@ -27,24 +27,30 @@ const componentSelector = 'my-page2';
     </div>
   `
 })
-export class Page2 extends AppParent 
+export class Page2 extends AppParent
   implements OnInit, AfterContentInit, AfterViewInit {
-  static isJQueryPluginsInitialized: boolean = false;
 
   constructor() {
     super();
     console.log(`${componentSelector} constructor`);
-    //this.init();
   }
-  ngOnInit(){
-    console.log(`${componentSelector} onInit`);    
+  ngOnInit() {
+    console.log(`${componentSelector} onInit`);
   }
   ngAfterContentInit() {
-    console.log(`${componentSelector} afterContentInit`);    
+    console.log(`${componentSelector} afterContentInit`);
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
-    if(!Page2.isJQueryPluginsInitialized)
-      Page2.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);    
+    if (!this.isJQueryPluginsInitialized) {
+      this.initJQueryPlugins();
+      this.isJQueryPluginsInitialized = true;
+    }
+  }
+
+  initJQueryPlugins(): void {
+    $(`${componentSelector} .modal-trigger`).leanModal();
+  }
+  initEventObservables(): void {
   }
 }

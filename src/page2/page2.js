@@ -9,7 +9,7 @@ exports.Page2 = undefined;
 
 var _angular = require("angular2/angular2");
 
-var _parent = require("../app/parent");
+var _appParent = require("../app/app-parent");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -32,7 +32,7 @@ var __metadata = undefined && undefined.__metadata || function (k, v) {
 };
 
 var componentSelector = 'my-page2';
-var _Page = (function (_AppParent) {
+var Page2 = exports.Page2 = (function (_AppParent) {
     _inherits(Page2, _AppParent);
 
     function Page2() {
@@ -41,7 +41,6 @@ var _Page = (function (_AppParent) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Page2).call(this));
 
         console.log(componentSelector + " constructor");
-        //this.init();
         return _this;
     }
 
@@ -59,15 +58,24 @@ var _Page = (function (_AppParent) {
         key: "ngAfterViewInit",
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
-            if (!_Page.isJQueryPluginsInitialized) _Page.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);
+            if (!this.isJQueryPluginsInitialized) {
+                this.initJQueryPlugins();
+                this.isJQueryPluginsInitialized = true;
+            }
         }
+    }, {
+        key: "initJQueryPlugins",
+        value: function initJQueryPlugins() {
+            $(componentSelector + " .modal-trigger").leanModal();
+        }
+    }, {
+        key: "initEventObservables",
+        value: function initEventObservables() {}
     }]);
 
     return Page2;
-})(_parent.AppParent);
-exports.Page2 = _Page;
-_Page.isJQueryPluginsInitialized = false;
-exports.Page2 = _Page = __decorate([(0, _angular.Component)({
+})(_appParent.AppParent);
+exports.Page2 = Page2 = __decorate([(0, _angular.Component)({
     selector: componentSelector,
     template: "\n    <div class=\"row\">\n      <h2>Card Editor</h2>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page2</h4>\n          <p>A bunch of text</p>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  "
-}), __metadata('design:paramtypes', [])], _Page);
+}), __metadata('design:paramtypes', [])], Page2);

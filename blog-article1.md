@@ -6,22 +6,22 @@ title: 初心者がAngular2で嵌まったり解決したりサンプルコー�
 
 目次
 
-* はじめに
-* Part1 tsdでインストールされるd.tsファイルがES6対応じゃないなら自力で対応しよう
-* Part2 System.jsを使うならconfigは専用ファイルを用意しよう
-* Part3 TypeScript→ES6→Babelで事前コンパイルしよう(async/await対応)
-* Part4 ルーティングを書いてみよう
-* Part5 Httpモジュールを使ってみよう(async/await登場)
-* Part6 ElectronとSystem.jsで初心者が嵌まりそうなこと(require('remote')編)
-* Part7 Electronで初心者が嵌りそうなこと(jqueryプラグイン編)
-* Part8 interfaceを実装してBreaking Changesに備えよう
-* 最後に
+* [はじめに](#part-begin)
+* [Part1 tsdでインストールされるd.tsファイルがES6対応じゃないなら自力で対応しよう](#part1)
+* [Part2 System.jsを使うならconfigは専用ファイルを用意しよう](#part2)
+* [Part3 TypeScript→ES6→Babelで事前コンパイルしよう(async/await対応)](#part3)
+* [Part4 ルーティングを書いてみよう](#part4)
+* [Part5 Httpモジュールを使ってみよう(async/await登場)](#part5)
+* [Part6 ElectronとSystem.jsで初心者が嵌まりそうなこと(require('remote')編)](#part6)
+* [Part7 Electronで初心者が嵌りそうなこと(jqueryプラグイン編)](#part7)
+* [Part8 interfaceを実装してBreaking Changesに備えよう](#part8)
+* [最後に](#part-end)
 
-### はじめに
+### <a name="part-begin">はじめに</a>
 みなさんAngular2使ってますか？ 使ってませんよね、だってまだalphaバージョンだもん。(先日も破壊的な更新があったし…)  
-でも僕は最近妙にハマってます。公式チュートリアルがすごくわかりやすくて直観的だったから。まあalpha故に別の意味でも度々ハマってますけれども。  
+でも僕は最近妙にハマってます。公式チュートリアルがすごくわかりやすくて直観的だったから。まあalpha故に別の意味でも度々ハマってますがw  
 
-ちなみに僕は**Web開発の経験はほとんどない**し**Angular1もよくわかってない**、なんでここに参加してるのかよくわからない出自の者なのですが、
+ちなみに僕は**Web開発の経験はほとんどない**し**Angular1もよくわかってない**、なんでここに参加してるのかもよくわからない出自の者なのですが、
 普段は基幹業務系のSIerです。どちらかというとフロントエンドよりもサーバーサイド寄りです。Angular2以外に触れたことのあるフレームワークと言えば[Knockout](http://knockoutjs.com/)と[Aurelia](http://aurelia.io/)くらいです。  
 なんでWeb開発に手を出してるの？と聞かれたら今のところは「修行の一環として」としか答えられないです。はいすみません。
 
@@ -31,8 +31,8 @@ title: 初心者がAngular2で嵌まったり解決したりサンプルコー�
 そしたらしばらくしてTypeScriptというものが世に出てきまして、そのとき1万だか2万行ぐらい書いてたJavaScriptのコードを夢中でTypeScriptに書き直したことを覚えています。
 まあそのときの成果物は今となっては稼働していないので懐かしい思い出話なんですけどね。  
 
-前置きが長くなりましたが、そういうわけで僕は型の無い世界は嫌いです。だからNot JavaScript But TypeScriptです。  
-そしてせっかくなら新しいもの使いたいじゃないですか。ES6。それにC#出身なんでasync/awaitも使いたいですね。  
+前置きが長くなりましたが、そういうわけで僕はIntelliSenseに飼い慣らされたこともあって**型の無い世界は嫌い**です。だからNot JavaScript But TypeScriptです。  
+そしてせっかくなら新しいもの使いたいじゃないですか。ES6。それにC#出身なんでasync/awaitも使いたいですよね。  
 
 ではいきましょう。今回の記事の前提環境です。
 
@@ -51,12 +51,12 @@ WindowsでのNode.js環境の作り方は過去記事 [Windowsでnpm installの�
 npm install angular2@2.0.0-alpha.47 --save --save-exact 
 npm install systemjs lodash jquery hammerjs materialize-css --save
 npm install typescript babel-preset-es2015 babel-polyfill gulp gulp-typescript gulp-babel gulp-ignore electron-prebuilt --save-dev
-tsd install lodash --save
+tsd install lodash jquery --save
 ```
 (Angular2のHttpモジュールがalpha48で正常動作しないのでalpha47を指定してインストールします)
 
 僕が普段使っている`tsconfig.json`ファイルの内容です。今回はこの設定を前提とします。
-```
+```json
 // tsconfig.json (TypeScript1.7用)
 
 {
@@ -76,7 +76,7 @@ tsd install lodash --save
 
 ---
 
-## Part1 tsdでインストールされるd.tsファイルがES6対応じゃないなら自力で対応しよう
+## <a name="part1">Part1 tsdでインストールされるd.tsファイルがES6対応じゃないなら自力で対応しよう</a>
 よくみんなtsdでd.tsファイルをインストールしますよね、こうやって。
 ```
 tsd install lodash --save
@@ -128,18 +128,18 @@ onClick(event) {
 }
 ```
 うろ覚えで適当にコード書いてますが、要するにボタンクリック時とかに発火するような関数の中でlodashを使おうとしていると、`window._`が存在しない場合にエラーになります。
-先ほどの前者はダメで後者なら良いというのはこういうことです。
+先ほどの前者はダメで後者なら良いというのはこういうことです。後者はRequireJSと同じようなものだというとわかりやすいかもしれません。
 
 TypeScriptと付き合っていくときの心得としては、
 
 * 動くなら多少のエラーは無視する。
 * 与えられたコードは必要に応じてオーバーライド(?)したり直接上書きしたりする。
 
-というのも必要かなって思いますね。あと公式ドキュメントはちゃんと読みましょう。  
+というのも必要かなって思います。あと公式ドキュメントはちゃんと読みましょう。  
 僕はTypeScriptのエラーと格闘して何時間か嵌りました。
 
 
-## Part2 System.jsを使うならconfigは専用ファイルを用意しよう
+## <a name="part2">Part2 System.jsを使うならconfigは専用ファイルを用意しよう</a>
 Angular2の公式チュートリアルで採用されているものが正義です。少なくとも僕の中では。というか他のツールでAngular2を使う方法を知りません。  
 それ以前に[Aurelia](http://aurelia.io/)もjspm(System.jsを内包しているライブラリ)を推していますから、僕はその流れに乗るしかありません。
 
@@ -147,7 +147,7 @@ Angular2の公式チュートリアルで採用されているものが正義で
 jspmとか使うとこの辺はわりと自動でやってくれるんですけど、せっかくだから**node_modulesフォルダの中身をブラウザ環境で使いまわしたい**し勉強も兼ねて自分で書いた方がいいですね。
 
 これは僕が普段使っているもので、`index.html`ファイルと同じ場所に配置します。
-```
+```javascript
 // system.config.js
 
 System.config({
@@ -180,7 +180,7 @@ System.jsは**ブラウザ上でのimportやrequireをフックする(本来の�
 (関連過去記事 [TypeScript + System.jsの構成におけるSystem.config()の基本パターン。](http://overmorrow.hatenablog.com/entry/2015/11/15/213830))
 
 
-## Part3 TypeScript→ES6→Babelで事前コンパイルしよう(async/await対応)
+## <a name="part3">Part3 TypeScript→ES6→Babelで事前コンパイルしよう(async/await対応)</a>
 正直言ってgulpfileの書き方よくわかってません。が、こんな感じで書くと`gulp tsc`とか`gulp watch`したときにちゃんとコンパイルしてくれます。
 ```javascript
 // gulpfile.js
@@ -217,7 +217,7 @@ gulp.task('watch', () => {
 僕はgulpfileの書き方で何時間か嵌りました。
 
 
-## Part4 ルーティングを書いてみよう
+## <a name="part4">Part4 ルーティングを書いてみよう</a>
 公式チュートリアルにはルーティングの書き方の説明がないんですよね。    
 最もシンプルに説明するにはどうしたらいいかなって思って、下記のコードに辿り着きました。後はこれにゴテゴテ色々付け足していくことになると思います。
 ```javascript
@@ -257,7 +257,7 @@ bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLoca
 をお忘れなく。僕はこれで何時間か嵌りました。
 
 
-## Part5 Httpモジュールを使ってみよう(async/await登場)
+## <a name="part5">Part5 Httpモジュールを使ってみよう(async/await登場)</a>
 公式チュートリアルにはHttpモジュールの使い方も説明されていません。  
 最もシンプルに説明するにはどうしたらいいかな、でもasync/awaitも書きたいしって思ってたらこうなりました。
 ```javascript
@@ -331,7 +331,7 @@ Angular2のHttpモジュールはネットで調べるとわかるように、�
 をお忘れなく。僕はこれで何時間か嵌りました。
 
 
-## Part6 ElectronとSystem.jsで初心者が嵌まりそうなこと(require('remote')編)
+## <a name="part6">Part6 ElectronとSystem.jsで初心者が嵌まりそうなこと(require('remote')編)</a>
 [Electron](http://electron.atom.io/)のレンダラプロセス(ブラウザ)からメインプロセス(サーバーサイド)のモジュールを使いたいとき、普通にやったら[レンダラプロセスではrequireできない](http://electron.atom.io/docs/latest/tutorial/quick-start/)んですね。    
 そういうときどうしたら良いか[公式ドキュメント:remote](http://electron.atom.io/docs/v0.35.0/api/remote/)には以下のように説明されています。
 ```javascript
@@ -353,7 +353,7 @@ const remote = System._nodeRequire('remote');
 僕はこれで何時間も嵌りました。
 
 
-## Part7 Electronで初心者が嵌りそうなこと(jqueryプラグイン編)
+## <a name="part7">Part7 Electronで初心者が嵌りそうなこと(jqueryプラグイン編)</a>
 僕がよく使うライブラリの中で、lodash, moment, numeralあたりはPart1の方法でHTMLから`<script src=...`を追放できます。  
 が、jqueryとそのプラグインだけは例外であり、**Expressのようなブラウザ環境とElectron環境で両立する書き方**は工夫が必要です。
 
@@ -381,16 +381,22 @@ const componentSelector = 'my-page2';
   `
 })
 export class Page2 implements AfterViewInit {
-  static isJQueryPluginsInitialized: boolean = false;
+  static _isJQueryPluginsInitialized: boolean = false;
+  get isJQueryPluginsInitialized() {
+    return Page2._isJQueryPluginsInitialized;
+  }
+  set isJQueryPluginsInitialized(flag: boolean) {
+    Page2._isJQueryPluginsInitialized = flag;
+  }
 
   ngAfterViewInit() {
-    if(!Page2.isJQueryPluginsInitialized) {
-      this.initJQueryPlugins(componentSelector);
-      Page2.isJQueryPluginsInitialized = true;
+    if(!this.isJQueryPluginsInitialized) {
+      this.initJQueryPlugins();
+      this.isJQueryPluginsInitialized = true;
     }
   }
-  initJQueryPlugins(selector: string): void {
-    $(`${selector} .modal-trigger`).leanModal();
+  initJQueryPlugins(): void {
+    $(`${componentSelector} .modal-trigger`).leanModal();
   }
 }
 ```
@@ -399,7 +405,7 @@ export class Page2 implements AfterViewInit {
 classのstatic変数で既にロードされたかどうかのフラグを持つのがコツですね。  
 
 
-## Part8 interfaceを実装してBreaking Changesに備えよう
+## <a name="part8">Part8 interfaceを実装してBreaking Changesに備えよう</a>
 alpha.46からalpha.47に変わったとき`onInit()`メソッドは`ngOnInit()`に変わりました。
 名前が他で使われそうというのが理由らしいのですが、これは事の経緯を知らないといきなり動かなくなって嵌まる要因になります。僕は嵌まりました。  
 
@@ -442,7 +448,7 @@ export class Page2 implements OnInit, AfterContentInit, AfterViewInit {
 
 ---
 
-## 最後に
+## <a name="part-end">最後に</a>
 嵌ってばかりでしつこいと思われるかもしれませんが僕にしてみれば**Web開発は嵌ってることの方が多い**です。  
 何か一行書くためだけに何時間かネットで調べて、やってみてダメだからまた調べに行って、トライ＆エラーの繰り返し。よくみんなこんなことやってられますねw  
 そもそもWeb開発の最前線にいるわけでもない僕が書いたものなので、ところどころ筋違いなことを書いていたり理解できない部分があったかもしれません。
@@ -455,4 +461,4 @@ TypeScriptネイティブのAngular2の登場ですよ。Angular1を知らない
 
 ここまで読んでいただいてありがとうございました。
 
-明日は…… また僕ですw 別の方の予定だったのですが急遽僕になりました。ではまた明日。
+明日は…… また僕ですw 別の方の予定だったのですが急遽変更になりました。ではまた明日。

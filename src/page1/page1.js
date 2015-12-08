@@ -15,7 +15,7 @@ var _router = require("angular2/router");
 
 var _http = require("angular2/http");
 
-var _parent = require("../app/parent");
+var _appParent = require("../app/app-parent");
 
 var _page = require("../page2/page2");
 
@@ -84,7 +84,6 @@ var _Page = (function (_AppParent) {
         var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Page1).call(this));
 
         _this.http = http;
-        _this.searchWord = '';
         _this.cards = [];
         console.log(componentSelector + " constructor");
         return _this;
@@ -104,14 +103,13 @@ var _Page = (function (_AppParent) {
         key: "ngAfterViewInit",
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
-            if (!_Page.isJQueryPluginsInitialized) {
-                this.initJQueryPlugins(componentSelector);
-                _Page.isJQueryPluginsInitialized = true;
+            this.initEventObservables();
+            if (!this.isJQueryPluginsInitialized) {
+                this.initJQueryPlugins();
+                this.isJQueryPluginsInitialized = true;
             }
-            this.initEventObservables(); // Observable.fromEvent()を初期化。
-            this.searchWord = _Page.savedWord;
             this.loadCards(this.searchWord);
-            document.getElementById('searchWord').focus();
+            document.querySelector('.firstFocus')[0].focus();
         }
     }, {
         key: "routerCanDeactivate",
@@ -122,7 +120,6 @@ var _Page = (function (_AppParent) {
         key: "routerOnDeactivate",
         value: function routerOnDeactivate() {
             _get(Object.getPrototypeOf(Page1.prototype), "routerOnDeactivate", this).call(this);
-            _Page.savedWord = this.searchWord;
         }
     }, {
         key: "loadCards",
@@ -168,15 +165,15 @@ var _Page = (function (_AppParent) {
         }
     }, {
         key: "initJQueryPlugins",
-        value: function initJQueryPlugins(selector) {
-            $(selector + " .modal-trigger").leanModal();
+        value: function initJQueryPlugins() {
+            $(componentSelector + " .modal-trigger").leanModal();
         }
     }, {
         key: "initEventObservables",
         value: function initEventObservables() {
             var _this3 = this;
 
-            this.setDisposableSubscription = _angular.Observable.fromEvent(document.getElementById('searchWord'), 'keyup').map(function (event) {
+            this.disposableSubscription = _angular.Observable.fromEvent(document.getElementById('searchWord'), 'keyup').map(function (event) {
                 return event.target.value;
             }).debounce(function () {
                 return _angular.Observable.timer(1000);
@@ -185,16 +182,23 @@ var _Page = (function (_AppParent) {
                 Materialize.toast("Searching with word '" + value + "' triggered", 2000);
             });
         }
+    }, {
+        key: "searchWord",
+        get: function get() {
+            return _Page._searchWord;
+        },
+        set: function set(word) {
+            _Page._searchWord = word;
+        }
     }]);
 
     return Page1;
-})(_parent.AppParent);
+})(_appParent.AppParent);
 exports.Page1 = _Page;
-_Page.isJQueryPluginsInitialized = false;
-_Page.savedWord = '';
+_Page._searchWord = '';
 exports.Page1 = _Page = __decorate([(0, _angular.Component)({
     selector: componentSelector,
-    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <!-- <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\"> -->\n            <input id=\"searchWord\" [(ng-model)]=\"searchWord\" type=\"text\" class=\"validate\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
+    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <!-- <input id=\"searchWord\" type=\"text\" class=\"validate firstFocus\" (keyup)=\"onChangeWord($event)\"> -->\n            <input id=\"searchWord\" [(ng-model)]=\"searchWord\" type=\"text\" class=\"validate\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
     directives: [_page.Page2, _router.ROUTER_DIRECTIVES],
     providers: [_http.HTTP_PROVIDERS]
 }), __metadata('design:paramtypes', [typeof (_a = typeof _http.Http !== 'undefined' && _http.Http) === 'function' && _a || Object])], _Page);

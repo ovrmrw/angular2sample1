@@ -1,7 +1,8 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
-import {Http,Response, HTTP_PROVIDERS} from 'angular2/http'
-import {AppParent} from '../app/parent'
+import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
+import {Subscription} from '@reactivex/rxjs'
+import {AppParent} from '../app/app-parent'
 import {Page2} from '../page2/page2'
 import moment from 'moment'
 import _ from 'lodash'
@@ -9,10 +10,6 @@ import numeral from 'numeral'
 import prominence from 'prominence'
 declare var $: JQueryStatic;
 declare var Materialize: any;
-declare interface Subscription{
-  isUnsubscribed: boolean,
-  unsubscribe: ()=>void  
-}
 
 const componentSelector = 'my-page1';
 
@@ -26,7 +23,7 @@ const componentSelector = 'my-page1';
       <form class="col s12 m12 l8">
         <div class="row">
           <div class="input-field col s12">
-            <!-- <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)"> -->
+            <!-- <input id="searchWord" type="text" class="validate firstFocus" (keyup)="onChangeWord($event)"> -->
             <input id="searchWord" [(ng-model)]="searchWord" type="text" class="validate">
             <label for="searchWord">Search Word</label>
           </div>
@@ -73,9 +70,14 @@ const componentSelector = 'my-page1';
 })
 export class Page1 extends AppParent
   implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
-  static isJQueryPluginsInitialized: boolean = false;
-  static savedWord: string = '';
-  searchWord: string = '';
+
+  static _searchWord: string = '';
+  get searchWord() {
+    return Page1._searchWord;
+  }
+  set searchWord(word: string) {
+    Page1._searchWord = word;
+  }
   cards: Card[] = [];
 
   constructor(public http: Http) {
@@ -90,13 +92,12 @@ export class Page1 extends AppParent
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
-    if (!Page1.isJQueryPluginsInitialized) {
-      this.initJQueryPlugins(componentSelector);
-      Page1.isJQueryPluginsInitialized = true;
+    this.initEventObservables();
+    if (!this.isJQueryPluginsInitialized) {
+      this.initJQueryPlugins();
+      this.isJQueryPluginsInitialized = true;
     }
-    this.initEventObservables(); // Observable.fromEvent()を初期化。
     
-    this.searchWord = Page1.savedWord;
     this.loadCards(this.searchWord);
     document.getElementById('searchWord').focus();
   }
@@ -104,11 +105,10 @@ export class Page1 extends AppParent
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
     //return confirm('Are you sure you want to leave?');    
   }
-  routerOnDeactivate() {    
+  routerOnDeactivate() {
     super.routerOnDeactivate();
-    Page1.savedWord = this.searchWord;
   }
-  
+
   loadCards(searchWord: string = ''): void {
     (async() => {
       let cards: Card[] = await this.http.get('/cards.json')
@@ -126,13 +126,13 @@ export class Page1 extends AppParent
     })();
   }
 
-  initJQueryPlugins(selector: string): void {
-    $(`${selector} .modal-trigger`).leanModal();
+  initJQueryPlugins(): void {
+    $(`${componentSelector} .modal-trigger`).leanModal();
   }
   initEventObservables(): void {
-    this.setDisposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
+    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
       .map((event: KeyboardEvent) => event.target.value)
-    //.filter(value => value.length > 0)
+      //.filter(value => value.length > 0)
       .debounce<string>(() => Observable.timer(1000))
       .subscribe(value => {
         this.loadCards(value);
