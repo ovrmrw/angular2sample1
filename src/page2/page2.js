@@ -32,8 +32,8 @@ var __metadata = undefined && undefined.__metadata || function (k, v) {
 };
 
 var componentSelector = 'my-page2';
-var _Page = (function (_Parent) {
-    _inherits(Page2, _Parent);
+var _Page = (function (_AppParent) {
+    _inherits(Page2, _AppParent);
 
     function Page2() {
         _classCallCheck(this, Page2);
@@ -64,7 +64,7 @@ var _Page = (function (_Parent) {
     }]);
 
     return Page2;
-})(_parent.Parent);
+})(_parent.AppParent);
 exports.Page2 = _Page;
 _Page.isJQueryPluginsInitialized = false;
 exports.Page2 = _Page = __decorate([(0, _angular.Component)({

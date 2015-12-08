@@ -1,4 +1,4 @@
-title: Web開発初心者がAngular2で嵌まったり解決したりサンプルコード書いたりしてみた。
+title: 初心者がAngular2で嵌まったり解決したりサンプルコード書いたりしてみた。
 
 ## Angular2, TypeScript, VS Code, System.js, async/await, Electron
 
@@ -25,7 +25,7 @@ title: Web開発初心者がAngular2で嵌まったり解決したりサンプ�
 普段は基幹業務系のSIerです。どちらかというとフロントエンドよりもサーバーサイド寄りです。Angular2以外に触れたことのあるフレームワークと言えば[Knockout](http://knockoutjs.com/)と[Aurelia](http://aurelia.io/)くらいです。  
 なんでWeb開発に手を出してるの？と聞かれたら今のところは「修行の一環として」としか答えられないです。はいすみません。
 
-さて来年には正式リリースされる予定のAngular2ですが、一番の注目点はTypeScriptベースで開発されているということです。  
+さて来年には正式リリースされる予定のAngular2ですが、一番の注目点は**TypeScriptベース**で開発されているということです。  
 ちょっと前にKnockoutでWeb開発に触れたとき、最初に痛感したのは「型の無いJavaScriptキモイ」ということでした。
 仕事でC#をちょこちょこ使うMicrosoft派な僕にとって型が無いから実行時まで構文上のエラーさえ知らされないというのは「そんなん無理じゃん」というぐらい生理的に受け付けないものでした。(Lintとか知らない)  
 そしたらしばらくしてTypeScriptというものが世に出てきまして、そのとき1万だか2万行ぐらい書いてたJavaScriptのコードを夢中でTypeScriptに書き直したことを覚えています。
@@ -36,7 +36,7 @@ title: Web開発初心者がAngular2で嵌まったり解決したりサンプ�
 
 ではいきましょう。今回の記事の前提環境です。
 
-* OSはWindows (個人的に好きだから)
+* OSはWindows (自宅にも職場にもあるから)
 * Visual Studio Code (TypeScriptと相性が良さそうだから)
 * モジュールローダーはSystem.js (Angular2の公式チュートリアルがそうだから)
 * JavaScriptは余程のことがない限り全てTypeScriptで書く (型が無いと生きられないから)
@@ -282,11 +282,11 @@ export class Page1 {
   
   constructor(public http: Http) {
   }
-  onChangeWord(event: KeyboardEvent) {
+  onChangeWord(event: KeyboardEvent): void {
     const value = event.target.value;
     this.loadCards(value);
   }
-  loadCards(searchWord: string = '') {
+  loadCards(searchWord: string = ''): void {
     console.log(1);
     (async() => {
       console.log(2);
@@ -385,19 +385,18 @@ export class Page2 implements AfterViewInit {
 
   ngAfterViewInit() {
     if(!Page2.isJQueryPluginsInitialized) {
-      Page2.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);
+      this.initJQueryPlugins(componentSelector);
+      Page2.isJQueryPluginsInitialized = true;
     }
   }
-  initJQueryPlugins(selector: string) {
+  initJQueryPlugins(selector: string): void {
     $(`${selector} .modal-trigger`).leanModal();
-    return true;
   }
 }
 ```
 上記は[Materialize-cssのModals](http://materializecss.com/modals.html)を使えるようにするコード例です。  
 `ngAfterViewInit()`は僕の知る限りコンポーネント生成の一番最後に実行される関数なのでここに書きます。
 classのstatic変数で既にロードされたかどうかのフラグを持つのがコツですね。  
-付け加えるなら`initJQueryPlugins()`は別ファイルに切り出してそれをclass継承するのが実用的かと思います。
 
 
 ## Part8 interfaceを実装してBreaking Changesに備えよう

@@ -1,5 +1,5 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
-import {Parent} from '../app/parent'
+import {AppParent} from '../app/parent'
 declare var $: JQueryStatic;
 
 const componentSelector = 'my-page2';
@@ -27,7 +27,8 @@ const componentSelector = 'my-page2';
     </div>
   `
 })
-export class Page2 extends Parent implements OnInit, AfterContentInit, AfterViewInit {
+export class Page2 extends AppParent 
+  implements OnInit, AfterContentInit, AfterViewInit {
   static isJQueryPluginsInitialized: boolean = false;
 
   constructor() {

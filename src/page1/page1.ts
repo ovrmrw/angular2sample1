@@ -1,8 +1,7 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
+import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {Http,Response, HTTP_PROVIDERS} from 'angular2/http'
-import {Observable} from 'angular2/core'
-import {Parent} from '../app/parent'
+import {AppParent} from '../app/parent'
 import {Page2} from '../page2/page2'
 import moment from 'moment'
 import _ from 'lodash'
@@ -28,7 +27,7 @@ const componentSelector = 'my-page1';
         <div class="row">
           <div class="input-field col s12">
             <!-- <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)"> -->
-            <input id="searchWord" type="text" class="validate tooltipped" data-position="bottom" data-delay="50" data-tooltip="Input search words">
+            <input id="searchWord" [(ng-model)]="searchWord" type="text" class="validate">
             <label for="searchWord">Search Word</label>
           </div>
         </div>
@@ -70,57 +69,45 @@ const componentSelector = 'my-page1';
     </div>
   `,
   directives: [Page2, ROUTER_DIRECTIVES],
-  providers:[HTTP_PROVIDERS]
+  providers: [HTTP_PROVIDERS]
 })
-export class Page1 extends Parent 
-                  implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
+export class Page1 extends AppParent
+  implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
   static isJQueryPluginsInitialized: boolean = false;
-  static isEventObservableInitialized: boolean = false;
   static savedWord: string = '';
+  searchWord: string = '';
   cards: Card[] = [];
-  disposables: Subscription[] = [];
-  set setDisposable(disposable: Subscription) {
-    this.disposables.push(disposable);
-  }
-  
+
   constructor(public http: Http) {
     super();
     console.log(`${componentSelector} constructor`);
   }
-  ngOnInit(){
-    console.log(`${componentSelector} onInit`);    
+  ngOnInit() {
+    console.log(`${componentSelector} onInit`);
   }
   ngAfterContentInit() {
-    console.log(`${componentSelector} afterContentInit`);    
+    console.log(`${componentSelector} afterContentInit`);
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
     if (!Page1.isJQueryPluginsInitialized) {
-      Page1.isJQueryPluginsInitialized = this.initJQueryPlugins(componentSelector);      
+      this.initJQueryPlugins(componentSelector);
+      Page1.isJQueryPluginsInitialized = true;
     }
     this.initEventObservables(); // Observable.fromEvent()を初期化。
-    const value = Page1.savedWord;
-    this.loadCards(value);
-    $('#searchWord').focus();
+    
+    this.searchWord = Page1.savedWord;
+    this.loadCards(this.searchWord);
+    document.getElementById('searchWord').focus();
   }
-  
+
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
-    return confirm('Are you sure you want to leave?');    
+    //return confirm('Are you sure you want to leave?');    
   }
-  routerOnDeactivate() {
-    console.log(this.disposables);
-    this.disposables.forEach(disposable => {
-      if (!disposable.isUnsubscribed) {
-        disposable.unsubscribe();
-      }
-    });
+  routerOnDeactivate() {    
+    super.routerOnDeactivate();
+    Page1.savedWord = this.searchWord;
   }
-  
-  // onChangeWord(event:KeyboardEvent) {
-  //   const value = event.target.value;
-  //   this.loadCards(value);
-  //   Page1.savedWord = value;    
-  // }
   
   loadCards(searchWord: string = ''): void {
     (async() => {
@@ -135,18 +122,20 @@ export class Page1 extends Parent
           });
         });
       }
-      this.cards = cards;      
+      this.cards = cards;
     })();
   }
 
-  initEventObservables() {
-    this.setDisposable = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
+  initJQueryPlugins(selector: string): void {
+    $(`${selector} .modal-trigger`).leanModal();
+  }
+  initEventObservables(): void {
+    this.setDisposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
       .map((event: KeyboardEvent) => event.target.value)
     //.filter(value => value.length > 0)
       .debounce<string>(() => Observable.timer(1000))
       .subscribe(value => {
         this.loadCards(value);
-        Page1.savedWord = value;
         Materialize.toast(`Searching with word '${value}' triggered`, 2000);
       });
   }
