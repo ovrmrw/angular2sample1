@@ -10,7 +10,7 @@ const componentSelector = 'my-page2';
   template: `
     <div class="row">
       <div class="col s12">
-        <h2>Other Pages</h2>
+        <h3>Other Pages</h3>
       </div>
     </div>
     <div class="row">

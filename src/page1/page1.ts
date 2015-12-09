@@ -1,6 +1,7 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
+import {} from '@reactivex/rxjs'
 import {AppParent} from '../app/app-parent'
 import {Page2} from '../page2/page2'
 import _ from 'lodash'
@@ -19,7 +20,7 @@ const componentSelector = 'my-page1';
     </div>
     <div class="row">
       <div class="col s12 m12 l4">
-        <h3>Card List</h3>
+        <h3 id="cardlist">Card List</h3>
       </div>
       <form class="col s12 m12 l8">
         <div class="row">
@@ -52,17 +53,18 @@ const componentSelector = 'my-page1';
     <div class="row">
       <div class="col s12">
         <!-- Modal Trigger -->
-        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
+        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">push this button</a>
   
         <!-- Modal Structure -->
         <div id="modal1" class="modal">
           <div class="modal-content">
-            <h4>Modal Header Page1</h4>
-            <p>A bunch of text</p>
-            <h3>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</h3>
+            <h4>説明</h4>
+            <p>Search Word欄に文字を入力するとカードの内容にヒットするものだけ絞り込んで表示します。</p>
+            <p>検索(抽出)ボタンはありません。キーボード入力が止まって1秒したら自動的に検索(抽出)が始まります。</p>
+            <h4>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</h4>
           </div>
           <div class="modal-footer">
-            <a class=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+            <a class=" modal-action modal-close waves-effect waves-green btn-flat">OK</a>
           </div>
         </div>
       </div>
@@ -145,6 +147,13 @@ export class Page1 extends AppParent
       .subscribe(() => {
         this.now = _.now();
       });
+      
+    this.disposableSubscription = Observable.fromEvent(document, 'click')
+      .map((event: KeyboardEvent) => event.target.textContent)
+      .filter(text => _.trim(text).length > 0)
+      .subscribe(text => {
+        Materialize.toast(`You clicked "${text}"`, 2000);  
+      });    
   }
 }
 

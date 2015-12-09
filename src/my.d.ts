@@ -33,6 +33,7 @@ declare interface JQuery {
 
 declare interface EventTarget {
   value: any;
+  textContent: string;
 }
 
 declare interface Card {
