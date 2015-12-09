@@ -5,6 +5,13 @@ var _createClass = (function () { function defineProperties(target, props) { for
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.AppParent = undefined;
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -29,15 +36,25 @@ var AppParent = exports.AppParent = (function () {
                     subscription.unsubscribe();
                 }
             });
-            this._disposableSubscriptions = [];
         }
     }, {
-        key: 'isJQueryPluginsInitialized',
+        key: 'initPluginsAndObservables',
+        value: function initPluginsAndObservables(selector) {
+            if (_lodash2.default.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
+                this.initializableJQueryPlugins();
+                this.initializedJQueryPluginSelector = selector;
+            }
+            this.initializableEventObservables();
+        }
+    }, {
+        key: 'initializedJQueryPluginSelectors',
         get: function get() {
-            return AppParent._isJQueryPluginsInitialized;
-        },
-        set: function set(flag) {
-            AppParent._isJQueryPluginsInitialized = flag;
+            return AppParent._initializedJQueryPluginSelectors;
+        }
+    }, {
+        key: 'initializedJQueryPluginSelector',
+        set: function set(selector) {
+            AppParent._initializedJQueryPluginSelectors.push(selector);
         }
     }, {
         key: 'disposableSubscriptions',
@@ -54,4 +71,4 @@ var AppParent = exports.AppParent = (function () {
     return AppParent;
 })();
 
-AppParent._isJQueryPluginsInitialized = false;
+AppParent._initializedJQueryPluginSelectors = [];

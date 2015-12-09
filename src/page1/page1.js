@@ -85,6 +85,7 @@ var _Page = (function (_AppParent) {
 
         _this.http = http;
         _this.cards = [];
+        _this.now = 0;
         console.log(componentSelector + " constructor");
         return _this;
     }
@@ -103,23 +104,19 @@ var _Page = (function (_AppParent) {
         key: "ngAfterViewInit",
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
-            this.initEventObservables();
-            if (!this.isJQueryPluginsInitialized) {
-                this.initJQueryPlugins();
-                this.isJQueryPluginsInitialized = true;
-            }
+            _get(Object.getPrototypeOf(Page1.prototype), "initPluginsAndObservables", this).call(this, componentSelector);
             this.loadCards(this.searchWord);
-            document.querySelector('.firstFocus')[0].focus();
-        }
-    }, {
-        key: "routerCanDeactivate",
-        value: function routerCanDeactivate(next, prev) {
-            //return confirm('Are you sure you want to leave?');   
+            document.getElementById('searchWord').focus();
         }
     }, {
         key: "routerOnDeactivate",
         value: function routerOnDeactivate() {
             _get(Object.getPrototypeOf(Page1.prototype), "routerOnDeactivate", this).call(this);
+        }
+    }, {
+        key: "routerCanDeactivate",
+        value: function routerCanDeactivate(next, prev) {
+            //return confirm('Are you sure you want to leave?');   
         }
     }, {
         key: "loadCards",
@@ -136,7 +133,7 @@ var _Page = (function (_AppParent) {
                             switch (_context.prev = _context.next) {
                                 case 0:
                                     _context.next = 2;
-                                    return this.http.get('/cards.json').map(function (res) {
+                                    return this.http.get('../cards.json').map(function (res) {
                                         return res.json();
                                     }).toPromise(Promise);
 
@@ -144,11 +141,18 @@ var _Page = (function (_AppParent) {
                                     cards = _context.sent;
 
                                     if (searchWord) {
-                                        words = _lodash2.default.words(searchWord);
+                                        words = _lodash2.default.chain(searchWord.replace(/[　]/g, ' ').split(' ')).map(function (word) {
+                                            return _lodash2.default.trim(word);
+                                        }).filter(function (word) {
+                                            return word.length > 0;
+                                        }).value();
 
+                                        console.log(words);
                                         words.forEach(function (word) {
                                             cards = _lodash2.default.filter(cards, function (card) {
-                                                return card.title.indexOf(word) > -1 || card.body.indexOf(word) > -1;
+                                                return _lodash2.default.some([card.title, card.body], function (value) {
+                                                    return value.indexOf(word) > -1;
+                                                });
                                             });
                                         });
                                     }
@@ -164,13 +168,13 @@ var _Page = (function (_AppParent) {
             })();
         }
     }, {
-        key: "initJQueryPlugins",
-        value: function initJQueryPlugins() {
+        key: "initializableJQueryPlugins",
+        value: function initializableJQueryPlugins() {
             $(componentSelector + " .modal-trigger").leanModal();
         }
     }, {
-        key: "initEventObservables",
-        value: function initEventObservables() {
+        key: "initializableEventObservables",
+        value: function initializableEventObservables() {
             var _this3 = this;
 
             this.disposableSubscription = _angular.Observable.fromEvent(document.getElementById('searchWord'), 'keyup').map(function (event) {
@@ -180,6 +184,9 @@ var _Page = (function (_AppParent) {
             }).subscribe(function (value) {
                 _this3.loadCards(value);
                 Materialize.toast("Searching with word '" + value + "' triggered", 2000);
+            });
+            this.disposableSubscription = _angular.Observable.timer(1, 1000).subscribe(function () {
+                _this3.now = _lodash2.default.now();
             });
         }
     }, {
@@ -198,7 +205,7 @@ exports.Page1 = _Page;
 _Page._searchWord = '';
 exports.Page1 = _Page = __decorate([(0, _angular.Component)({
     selector: componentSelector,
-    template: "\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <!-- <input id=\"searchWord\" type=\"text\" class=\"validate firstFocus\" (keyup)=\"onChangeWord($event)\"> -->\n            <input id=\"searchWord\" [(ng-model)]=\"searchWord\" type=\"text\" class=\"validate\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <!-- Modal Trigger -->\n      <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n\n      <!-- Modal Structure -->\n      <div id=\"modal1\" class=\"modal\">\n        <div class=\"modal-content\">\n          <h4>Modal Header Page1</h4>\n          <p>A bunch of text</p>\n          <h2>{{nowTime}}</h2>\n        </div>\n        <div class=\"modal-footer\">\n          <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n        </div>\n      </div>\n    </div>\n  ",
+    template: "\n    <div class=\"row\">\n      <div class=\"col s3 offset-s9\">\n        {{now | date:'yyyy-MM-dd HH:mm:ss'}}\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3>Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <!-- <input id=\"searchWord\" type=\"text\" class=\"validate firstFocus\" (keyup)=\"onChangeWord($event)\"> -->\n            <input id=\"searchWord\" [(ng-model)]=\"searchWord\" type=\"text\" class=\"validate\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col s12\">\n        <!-- Modal Trigger -->\n        <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Modal</a>\n  \n        <!-- Modal Structure -->\n        <div id=\"modal1\" class=\"modal\">\n          <div class=\"modal-content\">\n            <h4>Modal Header Page1</h4>\n            <p>A bunch of text</p>\n            <h3>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</h3>\n          </div>\n          <div class=\"modal-footer\">\n            <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">Agree</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  ",
     directives: [_page.Page2, _router.ROUTER_DIRECTIVES],
     providers: [_http.HTTP_PROVIDERS]
 }), __metadata('design:paramtypes', [typeof (_a = typeof _http.Http !== 'undefined' && _http.Http) === 'function' && _a || Object])], _Page);

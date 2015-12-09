@@ -1,4 +1,5 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
+import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {AppParent} from '../app/app-parent'
 declare var $: JQueryStatic;
 
@@ -28,7 +29,7 @@ const componentSelector = 'my-page2';
   `
 })
 export class Page2 extends AppParent
-  implements OnInit, AfterContentInit, AfterViewInit {
+  implements OnInit, AfterContentInit, AfterViewInit, OnDeactivate {
 
   constructor() {
     super();
@@ -42,15 +43,15 @@ export class Page2 extends AppParent
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
-    if (!this.isJQueryPluginsInitialized) {
-      this.initJQueryPlugins();
-      this.isJQueryPluginsInitialized = true;
-    }
+    super.initPluginsAndObservables(componentSelector);
+  }
+  routerOnDeactivate() {
+    super.routerOnDeactivate();
   }
 
-  initJQueryPlugins(): void {
+  initializableJQueryPlugins(): void {
     $(`${componentSelector} .modal-trigger`).leanModal();
   }
-  initEventObservables(): void {
+  initializableEventObservables(): void {
   }
 }
