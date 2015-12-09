@@ -1,5 +1,5 @@
 # angular2sample1
-Angular2のサンプルっぽい何かを作ります。今のところ全くの未完成。
+Angular2 Advent Calendar 2015に投稿した記事のサンプルコードです。
 
 
 ## How to setup
