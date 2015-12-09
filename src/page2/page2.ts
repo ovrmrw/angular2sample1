@@ -9,20 +9,25 @@ const componentSelector = 'my-page2';
   selector: componentSelector,
   template: `
     <div class="row">
-      <h2>Card Editor</h2>
+      <div class="col s12">
+        <h2>Other Pages</h2>
+      </div>
     </div>
     <div class="row">
-      <!-- Modal Trigger -->
-      <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
-
-      <!-- Modal Structure -->
-      <div id="modal1" class="modal">
-        <div class="modal-content">
-          <h4>Modal Header Page2</h4>
-          <p>A bunch of text</p>
-        </div>
-        <div class="modal-footer">
-          <a class=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+      <div class="col s12">
+        <!-- Modal Trigger -->
+        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Push this button</a>
+  
+        <!-- Modal Structure -->
+        <div id="modal1" class="modal">
+          <div class="modal-content">
+            <h4>Modal Title</h4>
+            <p>このページには何もありません。</p>
+            <p>Card Listのページに戻ってjqueryプラグインとイベントハンドラが正常動作することを確認してください。</p>
+          </div>
+          <div class="modal-footer">
+            <a class=" modal-action modal-close waves-effect waves-green btn-flat">OK</a>
+          </div>
         </div>
       </div>
     </div>

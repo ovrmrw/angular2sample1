@@ -1,6 +1,6 @@
 import {Observable} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
-import {Subscription} from '@reactivex/rxjs'
+import {Subscription} from '@reactivex/rxjs' // alpha.47の場合は'@reactivex/rxjs'
 import _ from 'lodash'
 
 export abstract class AppParent implements OnDeactivate {

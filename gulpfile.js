@@ -11,32 +11,6 @@ const ignore = require('gulp-ignore');
 /////////////////////////////////////////////////////////////////////////
 // TypeScript Compile
 
-gulp.task('tscES5', () => {
-  const tsProject = ts.createProject('tsconfig.json', { noExternalResolve: true });
-  tsProject.src()
-  //.pipe(plumber())
-    .pipe(ignore.exclude(['src/**/*.ts', '**/*.d.ts', 'node_modules/**/*.*', 'typings/**/*.*']))
-    .pipe(ignore.include(['*.ts']))
-    .pipe(ts(tsProject))
-    .pipe(babel({
-      presets: ['es2015']
-    }))
-    .pipe(gulp.dest('.'));
-});
-
-gulp.task('tscES6', () => {
-  const tsProject = ts.createProject('tsconfig.json', { noExternalResolve: true });
-  tsProject.src()
-  //.pipe(plumber())
-    .pipe(ignore.exclude(['*.ts', '**/*.d.ts', 'node_modules/**/*.*', 'typings/**/*.*']))
-    .pipe(ignore.include(['src/**/*.ts']))
-    .pipe(ts(tsProject))
-  .pipe(babel({
-    presets: ['es2015']
-  }))
-    .pipe(gulp.dest('.'));
-});
-
 gulp.task('tsc', () => {
   const tsProject = ts.createProject('tsconfig.json', { noExternalResolve: true });
   tsProject.src()

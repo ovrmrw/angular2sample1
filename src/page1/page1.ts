@@ -24,7 +24,7 @@ const componentSelector = 'my-page1';
       <form class="col s12 m12 l8">
         <div class="row">
           <div class="input-field col s12">
-            <!-- <input id="searchWord" type="text" class="validate firstFocus" (keyup)="onChangeWord($event)"> -->
+            <!-- <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)"> -->
             <input id="searchWord" [(ng-model)]="searchWord" type="text" class="validate">
             <label for="searchWord">Search Word</label>
           </div>
@@ -135,9 +135,9 @@ export class Page1 extends AppParent
   initializableEventObservables(): void {
     this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
       .map((event: KeyboardEvent) => event.target.value)
-      .debounce<string>(() => Observable.timer(1000))
-      .subscribe(value => {
-        this.loadCards(value);
+      .debounce(() => Observable.timer(1000))
+      .subscribe((value: string) => {
+        this.loadCards(value); // わざわざEventからvalueを取り出さなくても this.searchWord でも良い。
         Materialize.toast(`Searching with word '${value}' triggered`, 2000);
       });
 

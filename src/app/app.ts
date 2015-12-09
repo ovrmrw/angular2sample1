@@ -9,9 +9,9 @@ import {Page2} from '../page2/page2'
     <nav>
       <div class="nav-wrapper">
         <a href="#" class="brand-logo right">Angular2 Sample1</a>
-        <ul id="nav-mobile" class="left hide-on-small-and-down"><!-- classにhide-on-med-and-downを設定するとElectronで表示されない -->
+        <ul id="nav-mobile" class="left hide-on-small-and-down">
           <li id="nav1" [class.active]="getLinkStyle('/p1')"><a [router-link]="['/Page1']" class="waves-effect waves-light"><i class="material-icons left">view_module</i>Card List</a></li>
-          <li id="nav2" [class.active]="getLinkStyle('/p2')"><a [router-link]="['/Page2']" class="waves-effect waves-light"><i class="material-icons left">description</i>Card Editor</a></li>
+          <li id="nav2" [class.active]="getLinkStyle('/p2')"><a [router-link]="['/Page2']" class="waves-effect waves-light"><i class="material-icons left">description</i>Other Pages</a></li>
         </ul>
       </div>
     </nav>
@@ -47,18 +47,9 @@ import {Page2} from '../page2/page2'
   new Route({ path: '/p2', component: Page2, name: 'Page2' }),
 ])
 export class App {
-  location: Location;
-  router: Router;
-  constructor(location: Location, router: Router) {
-    this.location = location;
-    this.router = router;
+  constructor(public location: Location, public router: Router) {
   }
-  onClick(event){
-    console.log(event);
-    console.log(this.router);
-    console.log(this.location);
-  }
-  getLinkStyle(path) {
+  getLinkStyle(path: string): boolean {
     if (path === this.location.path()) {
       return true;
     }
@@ -67,5 +58,4 @@ export class App {
     }
   }
 }
-bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLocationStrategy })])
-  .catch(err => console.error(err));
+bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLocationStrategy })]);
