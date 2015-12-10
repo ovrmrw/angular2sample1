@@ -238,7 +238,7 @@ export class AppPage1 extends AppParent {
       }); // Subscription型が返る。
       
     this.disposableSubscription = Observable.fromEvent(document, 'click') // (3)
-      .map((event: KeyboardEvent) => event.target.textContent)
+      .map((event: MouseEvent) => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000); // Materialize-cssの通知 
@@ -362,7 +362,7 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
       });
       
     this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: KeyboardEvent) => event.target.textContent)
+      .map((event: MouseEvent) => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000);  
@@ -491,7 +491,7 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
       });
       
     this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: KeyboardEvent) => event.target.textContent)
+      .map((event: MouseEvent) => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000);  
@@ -591,7 +591,7 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
       });
       
     this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: KeyboardEvent) => event.target.textContent)
+      .map((event: MouseEvent) => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000);  
