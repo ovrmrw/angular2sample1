@@ -4,7 +4,6 @@ import {AppParent} from '../app/app-parent'
 declare var $: JQueryStatic;
 
 const componentSelector = 'my-page2';
-
 @Component({
   selector: componentSelector,
   template: `
@@ -33,7 +32,7 @@ const componentSelector = 'my-page2';
     </div>
   `
 })
-export class Page2 extends AppParent
+export class AppPage2 extends AppParent
   implements OnInit, AfterContentInit, AfterViewInit, OnDeactivate {
 
   constructor() {

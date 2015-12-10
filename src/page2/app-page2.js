@@ -7,7 +7,7 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.Page2 = undefined;
+exports.AppPage2 = undefined;
 
 var _angular = require("angular2/angular2");
 
@@ -34,19 +34,19 @@ var __metadata = undefined && undefined.__metadata || function (k, v) {
 };
 
 var componentSelector = 'my-page2';
-var Page2 = exports.Page2 = (function (_AppParent) {
-    _inherits(Page2, _AppParent);
+var AppPage2 = exports.AppPage2 = (function (_AppParent) {
+    _inherits(AppPage2, _AppParent);
 
-    function Page2() {
-        _classCallCheck(this, Page2);
+    function AppPage2() {
+        _classCallCheck(this, AppPage2);
 
-        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Page2).call(this));
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(AppPage2).call(this));
 
         console.log(componentSelector + " constructor");
         return _this;
     }
 
-    _createClass(Page2, [{
+    _createClass(AppPage2, [{
         key: "ngOnInit",
         value: function ngOnInit() {
             console.log(componentSelector + " onInit");
@@ -60,12 +60,12 @@ var Page2 = exports.Page2 = (function (_AppParent) {
         key: "ngAfterViewInit",
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
-            _get(Object.getPrototypeOf(Page2.prototype), "initPluginsAndObservables", this).call(this, componentSelector);
+            _get(Object.getPrototypeOf(AppPage2.prototype), "initPluginsAndObservables", this).call(this, componentSelector);
         }
     }, {
         key: "routerOnDeactivate",
         value: function routerOnDeactivate() {
-            _get(Object.getPrototypeOf(Page2.prototype), "routerOnDeactivate", this).call(this);
+            _get(Object.getPrototypeOf(AppPage2.prototype), "routerOnDeactivate", this).call(this);
         }
     }, {
         key: "initializableJQueryPlugins",
@@ -77,9 +77,9 @@ var Page2 = exports.Page2 = (function (_AppParent) {
         value: function initializableEventObservables() {}
     }]);
 
-    return Page2;
+    return AppPage2;
 })(_appParent.AppParent);
-exports.Page2 = Page2 = __decorate([(0, _angular.Component)({
+exports.AppPage2 = AppPage2 = __decorate([(0, _angular.Component)({
     selector: componentSelector,
     template: "\n    <div class=\"row\">\n      <div class=\"col s12\">\n        <h3>Other Pages</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col s12\">\n        <!-- Modal Trigger -->\n        <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">Push this button</a>\n  \n        <!-- Modal Structure -->\n        <div id=\"modal1\" class=\"modal\">\n          <div class=\"modal-content\">\n            <h4>Modal Title</h4>\n            <p>このページには何もありません。</p>\n            <p>Card Listのページに戻ってjqueryプラグインとイベントハンドラが正常動作することを確認してください。</p>\n          </div>\n          <div class=\"modal-footer\">\n            <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">OK</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  "
-}), __metadata('design:paramtypes', [])], Page2);
+}), __metadata('design:paramtypes', [])], AppPage2);

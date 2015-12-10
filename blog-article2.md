@@ -1,6 +1,6 @@
 title: Angular2の実践的なビューの作り方(Abstract Classを使う)
 
-## Angular2, TypeScript, Abstract Class
+## Angular2, TypeScript, Abstract Class, RxJS
 
 [Angular 2 Advent Calendar 2015](http://qiita.com/advent-calendar/2015/angular2)の10日目です。
 
@@ -195,6 +195,7 @@ export abstract class AppParent {
 // app-page1.ts
 
 import {Component, Observable} from 'angular2/angular2'
+import _ from 'lodash'
 
 const componentSelector = 'app-page1';
 
@@ -275,6 +276,7 @@ export class AppPage1 extends AppParent {
 ```javascript
 // app-parent.ts
 
+import {Subscription} from '@reactivex/rxjs'
 import {OnDeactivate} from 'angular2/router'
 
 export abstract class AppParent implements OnDeactivate { // interfaceをimplementsする
@@ -318,6 +320,7 @@ export abstract class AppParent implements OnDeactivate { // interfaceをimpleme
 
 import {Component, Observable} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
+import _ from 'lodash'
 
 const componentSelector = 'app-page1';
 
@@ -394,6 +397,7 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
 ```javascript
 // app-parent.ts
 
+import {Subscription} from '@reactivex/rxjs'
 import {OnDeactivate} from 'angular2/router'
 
 export abstract class AppParent implements OnDeactivate {
@@ -445,6 +449,7 @@ export abstract class AppParent implements OnDeactivate {
 
 import {Component, Observable, AfterViewInit} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
+import _ from 'lodash'
 
 const componentSelector = 'app-page1';
 
@@ -537,6 +542,8 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
 
 import {Component, Observable, AfterViewInit} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
+import _ from 'lodash'
+import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
 
 const componentSelector = 'app-page1';
 
@@ -552,7 +559,8 @@ const componentSelector = 'app-page1';
         <li *ng-for="#card of cards">{{card.title}} - {{card.body}}</li>
       </ul>
     </div>
-  `
+  `,
+  providers: [HTTP_PROVIDERS]
 })
 export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
   initializableJQueryPlugins(): void {
@@ -600,6 +608,9 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
   }
   
   // 追加ここから▼▼▼
+  constructor(public http: Http) {
+    super();
+  }
   cards: Card[] = [];
   
   loadCards(searchWord: string = ''): void {
@@ -629,7 +640,7 @@ declare interface Card { // 追加
   body: string;
 }
 ```
-`loadCards()`の定義を追加しました。  
+`loadCards()`の定義を追加しました。    
 これに関しては内容が大分かぶるので過去記事 [初心者がAngular2で嵌まったり解決したりサンプルコード書いたりしてみた。 - Httpモジュールを使ってみよう(async/await登場)](http://overmorrow.hatenablog.com/entry/2015/12/09/000000#part5)を参照してください。  
 補足程度に簡単に説明すると、
 
@@ -640,6 +651,14 @@ declare interface Card { // 追加
 * 入力したワードがCardのtitleかbodyに一致したものだけ絞り込んで画面に表示する。
 
 こんなようなことをやっています。  
+Httpモジュールを使うので、
+
+* `import {Http, HTTP_PROVIDERS} from 'angular2/http'`
+* `@Component({ providers: [HTTP_PROVIDERS] })`
+* `constructor(public http: Http) { }`
+
+上記3点はセットで揃えましょう。
+
 これで子クラスも完成しました。お疲れ様でした。
 
 ---

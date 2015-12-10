@@ -11,9 +11,9 @@ var _angular = require("angular2/angular2");
 
 var _router = require("angular2/router");
 
-var _page = require("../page1/page1");
+var _appPage = require("../page1/app-page1");
 
-var _page2 = require("../page2/page2");
+var _appPage2 = require("../page2/app-page2");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -83,7 +83,7 @@ var App = exports.App = (function () {
 exports.App = App = __decorate([(0, _angular.Component)({
     selector: 'my-app',
     template: "\n    <nav>\n      <div class=\"nav-wrapper\">\n        <a href=\"#\" class=\"brand-logo right\">Angular2 Sample1</a>\n        <ul id=\"nav-mobile\" class=\"left hide-on-small-and-down\">\n          <li id=\"nav1\" [class.active]=\"getLinkStyle('/p1')\"><a [router-link]=\"['/Page1']\" class=\"waves-effect waves-light\"><i class=\"material-icons left\">view_module</i>Card List</a></li>\n          <li id=\"nav2\" [class.active]=\"getLinkStyle('/p2')\"><a [router-link]=\"['/Page2']\" class=\"waves-effect waves-light\"><i class=\"material-icons left\">description</i>Other Pages</a></li>\n        </ul>\n      </div>\n    </nav>\n    <router-outlet></router-outlet>\n    <footer class=\"page-footer\">\n      <div class=\"container\">\n        <div class=\"row\">\n          <div class=\"col l6 s12\">\n            <h5 class=\"white-text\">Footer Content</h5>\n            <p class=\"grey-text text-lighten-4\">You can use rows and columns here to organize your footer content.</p>\n          </div>\n          <div class=\"col l4 offset-l2 s12\">\n            <h5 class=\"white-text\">Links</h5>\n            <ul>\n              <li><a class=\"grey-text text-lighten-3\" href=\"#!\">Link 1</a></li>\n              <li><a class=\"grey-text text-lighten-3\" href=\"#!\">Link 2</a></li>\n            </ul>\n          </div>\n        </div>\n      </div>\n      <div class=\"footer-copyright\">\n        <div class=\"container\">\n        © 2015 Copyright Text\n        <a class=\"grey-text text-lighten-4 right\" href=\"#!\">More Links</a>\n        </div>\n      </div>\n    </footer>\n  ",
-    directives: [_page.Page1, _page2.Page2, _router.ROUTER_DIRECTIVES]
-}), (0, _router.RouteConfig)([new _router.Route({ path: '/p1', component: _page.Page1, name: 'Page1', useAsDefault: true }), new _router.Route({ path: '/p2', component: _page2.Page2, name: 'Page2' })]), __metadata('design:paramtypes', [typeof (_a = typeof _router.Location !== 'undefined' && _router.Location) === 'function' && _a || Object, typeof (_b = typeof _router.Router !== 'undefined' && _router.Router) === 'function' && _b || Object])], App);
+    directives: [_appPage.AppPage1, _appPage2.AppPage2, _router.ROUTER_DIRECTIVES]
+}), (0, _router.RouteConfig)([new _router.Route({ path: '/p1', component: _appPage.AppPage1, name: 'Page1', useAsDefault: true }), new _router.Route({ path: '/p2', component: _appPage2.AppPage2, name: 'Page2' })]), __metadata('design:paramtypes', [typeof (_a = typeof _router.Location !== 'undefined' && _router.Location) === 'function' && _a || Object, typeof (_b = typeof _router.Router !== 'undefined' && _router.Router) === 'function' && _b || Object])], App);
 (0, _angular.bootstrap)(App, [_router.ROUTER_PROVIDERS, (0, _angular.provide)(_router.LocationStrategy, { useClass: _router.HashLocationStrategy })]);
 var _a, _b;

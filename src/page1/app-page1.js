@@ -7,7 +7,7 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.Page1 = undefined;
+exports.AppPage1 = undefined;
 
 var _angular = require("angular2/angular2");
 
@@ -17,7 +17,7 @@ var _http = require("angular2/http");
 
 var _appParent = require("../app/app-parent");
 
-var _page = require("../page2/page2");
+var _appPage = require("../page2/app-page2");
 
 var _lodash = require("lodash");
 
@@ -75,13 +75,13 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
 };
 
 var componentSelector = 'my-page1';
-var _Page = (function (_AppParent) {
-    _inherits(Page1, _AppParent);
+var _AppPage = (function (_AppParent) {
+    _inherits(AppPage1, _AppParent);
 
-    function Page1(http) {
-        _classCallCheck(this, Page1);
+    function AppPage1(http) {
+        _classCallCheck(this, AppPage1);
 
-        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Page1).call(this));
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(AppPage1).call(this));
 
         _this.http = http;
         _this.cards = [];
@@ -89,7 +89,7 @@ var _Page = (function (_AppParent) {
         return _this;
     }
 
-    _createClass(Page1, [{
+    _createClass(AppPage1, [{
         key: "ngOnInit",
         value: function ngOnInit() {
             console.log(componentSelector + " onInit");
@@ -103,14 +103,14 @@ var _Page = (function (_AppParent) {
         key: "ngAfterViewInit",
         value: function ngAfterViewInit() {
             console.log(componentSelector + " afterViewInit");
-            _get(Object.getPrototypeOf(Page1.prototype), "initPluginsAndObservables", this).call(this, componentSelector);
+            _get(Object.getPrototypeOf(AppPage1.prototype), "initPluginsAndObservables", this).call(this, componentSelector);
             this.loadCards(this.searchWord);
             document.getElementById('searchWord').focus();
         }
     }, {
         key: "routerOnDeactivate",
         value: function routerOnDeactivate() {
-            _get(Object.getPrototypeOf(Page1.prototype), "routerOnDeactivate", this).call(this);
+            _get(Object.getPrototypeOf(AppPage1.prototype), "routerOnDeactivate", this).call(this);
         }
     }, {
         key: "routerCanDeactivate",
@@ -198,21 +198,21 @@ var _Page = (function (_AppParent) {
     }, {
         key: "searchWord",
         get: function get() {
-            return _Page._searchWord;
+            return _AppPage._searchWord;
         },
         set: function set(word) {
-            _Page._searchWord = word;
+            _AppPage._searchWord = word;
         }
     }]);
 
-    return Page1;
+    return AppPage1;
 })(_appParent.AppParent);
-exports.Page1 = _Page;
-_Page._searchWord = '';
-exports.Page1 = _Page = __decorate([(0, _angular.Component)({
+exports.AppPage1 = _AppPage;
+_AppPage._searchWord = '';
+exports.AppPage1 = _AppPage = __decorate([(0, _angular.Component)({
     selector: componentSelector,
     template: "\n    <div class=\"row\">\n      <div class=\"col s3 offset-s9\">\n        {{now | date:'yyyy-MM-dd HH:mm:ss'}}\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col s12 m12 l4\">\n        <h3 id=\"cardlist\">Card List</h3>\n      </div>\n      <form class=\"col s12 m12 l8\">\n        <div class=\"row\">\n          <div class=\"input-field col s12\">\n            <!-- <input id=\"searchWord\" type=\"text\" class=\"validate\" (keyup)=\"onChangeWord($event)\"> -->\n            <input id=\"searchWord\" [(ng-model)]=\"searchWord\" type=\"text\" class=\"validate\">\n            <label for=\"searchWord\">Search Word</label>\n          </div>\n        </div>\n      </form>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length > 0\">\n      <div class=\"col s6 m4 l3\" *ng-for=\"#card of cards\">\n        <div class=\"card orange darken-2 waves-effect waves-light\" [router-link]=\"['/Page2']\">\n          <div class=\"card-content white-text\">\n            <span class=\"card-title\">{{card.title}}</span>\n            <p>{{card.body}}</p>\n          </div>\n          <div class=\"card-action\">\n            <a [router-link]=\"['/Page2']\">Card Editor</a>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"row\" *ng-if=\"cards && cards.length == 0\">\n      <div class=\"col s12\">\n        <h3 class=\"pink lighten-2 white-text\">No Results</h3>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"col s12\">\n        <!-- Modal Trigger -->\n        <a class=\"waves-effect waves-light btn modal-trigger\" href=\"#modal1\">push this button</a>\n  \n        <!-- Modal Structure -->\n        <div id=\"modal1\" class=\"modal\">\n          <div class=\"modal-content\">\n            <h4>説明</h4>\n            <p>Search Word欄に文字を入力するとカードの内容にヒットするものだけ絞り込んで表示します。</p>\n            <p>検索(抽出)ボタンはありません。キーボード入力が止まって1秒したら自動的に検索(抽出)が始まります。</p>\n            <h4>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</h4>\n          </div>\n          <div class=\"modal-footer\">\n            <a class=\" modal-action modal-close waves-effect waves-green btn-flat\">OK</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  ",
-    directives: [_page.Page2, _router.ROUTER_DIRECTIVES],
+    directives: [_appPage.AppPage2, _router.ROUTER_DIRECTIVES],
     providers: [_http.HTTP_PROVIDERS]
-}), __metadata('design:paramtypes', [typeof (_a = typeof _http.Http !== 'undefined' && _http.Http) === 'function' && _a || Object])], _Page);
+}), __metadata('design:paramtypes', [typeof (_a = typeof _http.Http !== 'undefined' && _http.Http) === 'function' && _a || Object])], _AppPage);
 var _a;

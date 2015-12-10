@@ -1,7 +1,7 @@
 import {bootstrap, Component, provide} from 'angular2/angular2'
 import {Router, Route, RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS, Location, LocationStrategy, HashLocationStrategy} from 'angular2/router'
-import {Page1} from '../page1/page1'
-import {Page2} from '../page2/page2'
+import {AppPage1} from '../page1/app-page1'
+import {AppPage2} from '../page2/app-page2'
 
 @Component({
   selector: 'my-app',
@@ -40,11 +40,11 @@ import {Page2} from '../page2/page2'
       </div>
     </footer>
   `,
-  directives: [Page1, Page2, ROUTER_DIRECTIVES]
+  directives: [AppPage1, AppPage2, ROUTER_DIRECTIVES]
 })
 @RouteConfig([
-  new Route({ path: '/p1', component: Page1, name: 'Page1', useAsDefault: true }),
-  new Route({ path: '/p2', component: Page2, name: 'Page2' }),
+  new Route({ path: '/p1', component: AppPage1, name: 'Page1', useAsDefault: true }),
+  new Route({ path: '/p2', component: AppPage2, name: 'Page2' }),
 ])
 export class App {
   constructor(public location: Location, public router: Router) {

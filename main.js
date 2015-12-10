@@ -21,7 +21,7 @@ if (ELECTRON_ENV === JADE) { // jade
   filePath = './src/index.jade.html';
   fs.writeFileSync(filePath, html);
 } else { // express
-  require('babel-register')();
+  //require('babel-register')();
   serverInfo = require('./express');
 }
 
@@ -31,7 +31,7 @@ const app = require('app');  // Module to control application life.
 const BrowserWindow = require('browser-window');  // Module to create native browser window.
 
 // Report crashes to our server.
-//require('crash-reporter').start();
+require('crash-reporter').start();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

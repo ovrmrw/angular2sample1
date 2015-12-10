@@ -1,15 +1,13 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
-import {} from '@reactivex/rxjs'
 import {AppParent} from '../app/app-parent'
-import {Page2} from '../page2/page2'
+import {AppPage2} from '../page2/app-page2'
 import _ from 'lodash'
 declare var $: JQueryStatic;
 declare var Materialize: any;
 
 const componentSelector = 'my-page1';
-
 @Component({
   selector: componentSelector,
   template: `
@@ -70,18 +68,18 @@ const componentSelector = 'my-page1';
       </div>
     </div>
   `,
-  directives: [Page2, ROUTER_DIRECTIVES],
+  directives: [AppPage2, ROUTER_DIRECTIVES],
   providers: [HTTP_PROVIDERS]
 })
-export class Page1 extends AppParent
+export class AppPage1 extends AppParent
   implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
 
   static _searchWord: string = '';
   get searchWord() {
-    return Page1._searchWord;
+    return AppPage1._searchWord;
   }
   set searchWord(word: string) {
-    Page1._searchWord = word;
+    AppPage1._searchWord = word;
   }
   cards: Card[] = [];
   now: number;
