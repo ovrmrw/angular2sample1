@@ -26,7 +26,8 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-src/app/*.js
-src/page1/*.js
-src/page2/*.js
+# src/app/*.js
+# src/page1/*.js
+# src/page2/*.js
+src/**/*.js
 express.js

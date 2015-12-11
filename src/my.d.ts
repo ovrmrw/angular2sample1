@@ -19,3 +19,5 @@ declare interface Card {
   title: string;
   body: string;
 }
+
+declare var Materialize: any;

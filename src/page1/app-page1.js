@@ -192,7 +192,8 @@ var _AppPage = (function (_AppParent) {
             }).filter(function (text) {
                 return _lodash2.default.trim(text).length > 0;
             }).subscribe(function (text) {
-                Materialize.toast("You clicked \"" + text + "\"", 2000);
+                console.log(componentSelector + " " + text);
+                Materialize.toast("You clicked \"" + text + "\"", 1000);
             });
         }
     }, {

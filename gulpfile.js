@@ -52,15 +52,15 @@ gulp.task('browsersync', function () {
 gulp.task('express', ['browsersync'], function () {
   nodemon({
     script: 'express.js',
-    //ext: 'js html css',
+    ext: 'js json',
     ignore: [  // nodemon で監視しないディレクトリ
       'node_modules',
       'typings',
       'src',
     ],
-    env: {
-      'NODE_ENV': 'development'
-    },
+    // env: {
+    //   'NODE_ENV': 'development'
+    // },
     stdout: false  // Express の再起動時のログを監視するため
   }).on('readable', function () {
     this.stdout.on('data', function (chunk) {

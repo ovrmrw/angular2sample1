@@ -25,21 +25,23 @@ var AppParent = exports.AppParent = (function () {
     _createClass(AppParent, [{
         key: 'routerOnDeactivate',
         value: function routerOnDeactivate() {
-            console.log('dispose subscriptions');
             this.disposeSubscriptions();
         }
     }, {
         key: 'disposeSubscriptions',
         value: function disposeSubscriptions() {
+            console.log('disposeSubscriptions');
             this.disposableSubscriptions.forEach(function (subscription) {
                 if (!subscription.isUnsubscribed) {
                     subscription.unsubscribe();
                 }
             });
+            this._disposableSubscriptions = void 0;
         }
     }, {
         key: 'initPluginsAndObservables',
         value: function initPluginsAndObservables(selector) {
+            console.log(selector + ' initPluginsAndObservables');
             if (_lodash2.default.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
                 this.initializableJQueryPlugins();
                 this.initializedJQueryPluginSelector = selector;

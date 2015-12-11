@@ -1,4 +1,4 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/angular2'
+import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {AppParent} from '../app/app-parent'
 declare var $: JQueryStatic;
@@ -57,5 +57,12 @@ export class AppPage2 extends AppParent
     $(`${componentSelector} .modal-trigger`).leanModal();
   }
   initializableEventObservables(): void {
+    this.disposableSubscription = Observable.fromEvent(document, 'click')     
+      .map((event: MouseEvent) => event.target.textContent)
+      .filter(text => _.trim(text).length > 0)      
+      .subscribe(text => {
+        console.log(`${componentSelector} ${text}`);
+        Materialize.toast(`You clicked "${text}"`, 1000);
+      });
   }
 }

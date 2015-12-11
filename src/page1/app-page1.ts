@@ -5,7 +5,6 @@ import {AppParent} from '../app/app-parent'
 import {AppPage2} from '../page2/app-page2'
 import _ from 'lodash'
 declare var $: JQueryStatic;
-declare var Materialize: any;
 
 const componentSelector = 'my-page1';
 @Component({
@@ -150,7 +149,8 @@ export class AppPage1 extends AppParent
       .map((event: MouseEvent) => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
-        Materialize.toast(`You clicked "${text}"`, 2000);  
+        console.log(`${componentSelector} ${text}`);
+        Materialize.toast(`You clicked "${text}"`, 1000);  
       });    
   }
 }

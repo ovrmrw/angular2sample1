@@ -20,19 +20,21 @@ export abstract class AppParent implements OnDeactivate {
   }
 
   routerOnDeactivate() {
-    console.log('dispose subscriptions');
     this.disposeSubscriptions();
   }
 
   private disposeSubscriptions(): void {
+    console.log('disposeSubscriptions');
     this.disposableSubscriptions.forEach(subscription => {
       if (!subscription.isUnsubscribed) {
         subscription.unsubscribe();
       }
     });
+    this._disposableSubscriptions = void 0;
   }
 
   protected initPluginsAndObservables(selector: string): void {
+    console.log(`${selector} initPluginsAndObservables`);
     if (_.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
       this.initializableJQueryPlugins();
       this.initializedJQueryPluginSelector = selector;

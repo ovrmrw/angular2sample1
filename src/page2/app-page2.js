@@ -74,7 +74,16 @@ var AppPage2 = exports.AppPage2 = (function (_AppParent) {
         }
     }, {
         key: "initializableEventObservables",
-        value: function initializableEventObservables() {}
+        value: function initializableEventObservables() {
+            this.disposableSubscription = _angular.Observable.fromEvent(document, 'click').map(function (event) {
+                return event.target.textContent;
+            }).filter(function (text) {
+                return _.trim(text).length > 0;
+            }).subscribe(function (text) {
+                console.log(componentSelector + " " + text);
+                Materialize.toast("You clicked \"" + text + "\"", 1000);
+            });
+        }
     }]);
 
     return AppPage2;
