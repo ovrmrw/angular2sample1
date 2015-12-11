@@ -31,3 +31,4 @@ node_modules
 # src/page2/*.js
 src/**/*.js
 express.js
+**/**.secret

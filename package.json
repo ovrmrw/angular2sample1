@@ -1,8 +1,8 @@
 {
   "name": "angular2sample1",
   "version": "1.0.0",
-  "description": "Angular2のサンプルっぽい何かを作ります。今のところ全くの未完成。",
-  "main": "main.js",
+  "description": "Angular2 Advent Calendar 2015に投稿した記事のサンプルコードです。",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

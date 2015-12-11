@@ -85,7 +85,7 @@ gulp.task('ex', ['compile', 'express', 'watch']);
 gulp.task('electron', () => {
   const electron = require('electron-prebuilt');
   const proc = require('child_process');
-  proc.spawn(electron, ['main.js']);
+  proc.spawn(electron, ['electron.js']);
 });
 
 gulp.task('el', ['compile', 'electron', 'watch']);
