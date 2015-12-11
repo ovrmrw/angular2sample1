@@ -1,14 +1,15 @@
+import {AfterViewInit} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
 import {Subscription} from '@reactivex/rxjs' // alpha.47の場合は'@reactivex/rxjs'
 import _ from 'lodash'
 
-export abstract class AppParent implements OnDeactivate {
+export abstract class AppPageParent implements AfterViewInit, OnDeactivate {
   private static _initializedJQueryPluginSelectors: string[] = [];
   private get initializedJQueryPluginSelectors() {
-    return AppParent._initializedJQueryPluginSelectors;
+    return AppPageParent._initializedJQueryPluginSelectors;
   }
   private set initializedJQueryPluginSelector(selector: string) {
-    AppParent._initializedJQueryPluginSelectors.push(selector);
+    AppPageParent._initializedJQueryPluginSelectors.push(selector);
   }
 
   private _disposableSubscriptions: Subscription<any>[] = [];
@@ -19,12 +20,17 @@ export abstract class AppParent implements OnDeactivate {
     this._disposableSubscriptions.push(subscription);
   }
 
+  constructor(private componentSelector: string) {
+  }
+  ngAfterViewInit() {
+    this.initPluginsAndObservables(this.componentSelector);
+  }
   routerOnDeactivate() {
-    this.disposeSubscriptions();
+    this.disposeSubscriptions(this.componentSelector);
   }
 
-  private disposeSubscriptions(): void {
-    console.log('disposeSubscriptions');
+  private disposeSubscriptions(selector: string): void {
+    console.log(`${selector} disposeSubscriptions`);
     this.disposableSubscriptions.forEach(subscription => {
       if (!subscription.isUnsubscribed) {
         subscription.unsubscribe();
@@ -33,7 +39,7 @@ export abstract class AppParent implements OnDeactivate {
     this._disposableSubscriptions = void 0;
   }
 
-  protected initPluginsAndObservables(selector: string): void {
+  private initPluginsAndObservables(selector: string): void {
     console.log(`${selector} initPluginsAndObservables`);
     if (_.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
       this.initializableJQueryPlugins();

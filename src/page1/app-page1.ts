@@ -1,7 +1,7 @@
 import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
-import {AppParent} from '../app/app-parent'
+import {AppPageParent} from '../app/app-parent'
 import {AppPage2} from '../page2/app-page2'
 import _ from 'lodash'
 declare var $: JQueryStatic;
@@ -70,7 +70,7 @@ const componentSelector = 'my-page1';
   directives: [AppPage2, ROUTER_DIRECTIVES],
   providers: [HTTP_PROVIDERS]
 })
-export class AppPage1 extends AppParent
+export class AppPage1 extends AppPageParent
   implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
 
   static _searchWord: string = '';
@@ -84,7 +84,8 @@ export class AppPage1 extends AppParent
   now: number;
 
   constructor(public http: Http) {
-    super();
+    //super();
+    super(componentSelector);
     console.log(`${componentSelector} constructor`);
   }
   ngOnInit() {
@@ -95,12 +96,13 @@ export class AppPage1 extends AppParent
   }
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
-    super.initPluginsAndObservables(componentSelector);
-    
+    //super.initPluginsAndObservables(componentSelector);
+    super.ngAfterViewInit();
     this.loadCards(this.searchWord);
     document.getElementById('searchWord').focus();
   }
   routerOnDeactivate() {
+    console.log(`${componentSelector} onDeactivate`);
     super.routerOnDeactivate();
   }
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {

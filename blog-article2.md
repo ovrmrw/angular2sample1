@@ -2,6 +2,8 @@ title: Angular2の実践的なビューの作り方(Abstract Classを使う)
 
 ## Angular2, TypeScript, Abstract Class, RxJS
 
+**【注】この記事ではAngular2 alpha.47を前提としています。それ以降のバージョンだと色々細かいところで違いがあるので注意してください。**
+
 [Angular 2 Advent Calendar 2015](http://qiita.com/advent-calendar/2015/angular2)の10日目です。
 
 前提環境などは昨日と同じなので、先に軽く目を通しておいていただければと思います。当然TypeScriptが大前提です。   
@@ -67,7 +69,7 @@ Web開発ではビューを作るときに、そうですね10画面ぐらいの
 1. 子クラスのビューが用意できた
 1. 子クラスの`ngOnViewInit()`イベント発火
 1. 親クラスの`initPluginsAndObservables()`実行
-1. (子クラスで実装されているはずの)`initializable`関数を親クラスで呼び出し
+1. (子クラスで実装されているはずの)`initializable`関数を親クラスから呼び出し
 
 という流れで処理されます。  
 もう何度も言っていることですが、**Abstract Classを使うと共通するコードを親クラスに追いやってすっきりさせることが簡単にできます。**  
@@ -81,6 +83,8 @@ Web開発ではビューを作るときに、そうですね10画面ぐらいの
 // app-parent.ts
 
 export abstract class AppParent {
+  constructor(private componentSelector: string) {
+  }
 }
 ```
 ```javascript
@@ -89,18 +93,20 @@ export abstract class AppParent {
 import {Component} from 'angular2/angular2'
 
 const componentSelector = 'app-page1';
-
 @Component({
   selector: componentSelector,
   template: `  
   `
 })
 export class AppPage1 extends AppParent {
+  constructor() {
+    super(componentSelector);
+  }
 }
 ```
-`AppPage1`子クラスは、abstractな`AppParent`親クラスを継承します。  
-abstractな関数を宣言する予定なので、クラスもabstractを付けなければいけません。  
-Step1は簡単すぎましたね。
+`AppPage1`子クラスは、abstractな`AppParent`親クラスを継承します。abstractな関数を宣言する予定なので、クラスもabstractを付けなければいけません。  
+また子クラスの`componentSelector`を親クラスに登録しておくと後々捗るので、`constructor()`を通して親クラスの`private`な`componentSelector`に代入します。    
+Step1は簡単ですね。
 
 ---
 
@@ -110,6 +116,9 @@ Step1は簡単すぎましたね。
 // app-parent.ts
 
 export abstract class AppParent {
+  constructor(private componentSelector: string) {
+  }
+  
   // 追加ここから▼▼▼
   private static _initializedJQueryPluginSelectors: string[] = [];
   private get initializedJQueryPluginSelectors() {
@@ -129,7 +138,6 @@ export abstract class AppParent {
 import {Component} from 'angular2/angular2'
 
 const componentSelector = 'app-page1';
-
 @Component({
   selector: componentSelector,
   template: `  
@@ -138,6 +146,10 @@ const componentSelector = 'app-page1';
   `
 })
 export class AppPage1 extends AppParent {
+  constructor() {
+    super(componentSelector);
+  }
+  
   // 追加ここから▼▼▼
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
@@ -165,9 +177,12 @@ SPAでは状態を保存しておく用途に使われることが多いと思�
 ```javascript
 // app-parent.ts
 
-import {Subscription} from '@reactivex/rxjs' // alpha.47の場合は'@reactivex/rxjs、それ以降は多分変わる'
+import {Subscription} from '@reactivex/rxjs' // alpha.47の場合は'@reactivex/rxjs'、それ以降は多分変わる
 
 export abstract class AppParent {
+  constructor(private componentSelector: string) {
+  }
+  
   private static _initializedJQueryPluginSelectors: string[] = [];
   private get initializedJQueryPluginSelectors() {
     return AppParent._initializedJQueryPluginSelectors;
@@ -198,7 +213,6 @@ import {Component, Observable} from 'angular2/angular2'
 import _ from 'lodash'
 
 const componentSelector = 'app-page1';
-
 @Component({
   selector: componentSelector,
   template: `  
@@ -208,7 +222,11 @@ const componentSelector = 'app-page1';
     <div>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</div>
   `
 })
-export class AppPage1 extends AppParent {  
+export class AppPage1 extends AppParent { 
+  constructor() {
+    super(componentSelector);
+  }
+   
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
     $(`${componentSelector} #dialog`).dialog();
@@ -280,6 +298,9 @@ import {Subscription} from '@reactivex/rxjs'
 import {OnDeactivate} from 'angular2/router'
 
 export abstract class AppParent implements OnDeactivate { // interfaceをimplementsする
+  constructor(private componentSelector: string) {
+  }
+  
   private static _initializedJQueryPluginSelectors: string[] = [];
   private get initializedJQueryPluginSelectors() {
     return AppParent._initializedJQueryPluginSelectors;
@@ -307,6 +328,7 @@ export abstract class AppParent implements OnDeactivate { // interfaceをimpleme
         subscription.unsubscribe();
       }
     });
+    this._disposableSubscriptions = void 0;
   }
   
   routerOnDeactivate() {
@@ -318,12 +340,11 @@ export abstract class AppParent implements OnDeactivate { // interfaceをimpleme
 ```javascript
 // app-page1.ts
 
-import {Component, Observable} from 'angular2/angular2'
+import {Component, Observable, AfterViewInit} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
 import _ from 'lodash'
 
 const componentSelector = 'app-page1';
-
 @Component({
   selector: componentSelector,
   template: `  
@@ -334,6 +355,10 @@ const componentSelector = 'app-page1';
   `
 })
 export class AppPage1 extends AppParent implements OnDeactivate { // interfaceをimplementsする
+  constructor() {
+    super(componentSelector);
+  }
+  
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
     $(`${componentSelector} #dialog`).dialog();
@@ -398,9 +423,13 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
 // app-parent.ts
 
 import {Subscription} from '@reactivex/rxjs'
+import {AfterViewInit} from 'angular2/angular2'
 import {OnDeactivate} from 'angular2/router'
 
-export abstract class AppParent implements OnDeactivate {
+export abstract class AppParent implements OnDeactivate, AfterViewInit {
+  constructor(private componentSelector: string) {
+  }
+  
   private static _initializedJQueryPluginSelectors: string[] = [];
   private get initializedJQueryPluginSelectors() {
     return AppParent._initializedJQueryPluginSelectors;
@@ -427,6 +456,7 @@ export abstract class AppParent implements OnDeactivate {
         subscription.unsubscribe();
       }
     });
+    this._disposableSubscriptions = void 0;
   }
   
   routerOnDeactivate() {
@@ -434,12 +464,16 @@ export abstract class AppParent implements OnDeactivate {
   }
   
   // 追加ここから▼▼▼
-  protected initPluginsAndObservables(selector: string): void {
+  private initPluginsAndObservables(selector: string): void {
     if (_.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
       this.initializableJQueryPlugins();
       this.initializedJQueryPluginSelector = selector;
     }
     this.initializableEventObservables();
+  }
+  
+  ngAfterViewInit() {
+    this.initPluginsAndObservables(this.componentSelector);
   }
   // 追加ここまで▲▲▲
 }
@@ -452,7 +486,6 @@ import {OnDeactivate} from 'angular2/router'
 import _ from 'lodash'
 
 const componentSelector = 'app-page1';
-
 @Component({
   selector: componentSelector,
   template: `  
@@ -463,6 +496,10 @@ const componentSelector = 'app-page1';
   `
 })
 export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit { // interfaceをimplementsする
+  constructor() {
+    super(componentSelector);
+  }
+  
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
     $(`${componentSelector} #dialog`).dialog();
@@ -504,7 +541,7 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
   
   // 追加ここから▼▼▼
   ngAfterViewInit() {
-    super.initPluginsAndObservables(componentSelector);
+    super.ngAfterViewInit();
     this.loadCards(this.searchWord); // 最後に説明します。
   }
   // 追加ここまで▲▲▲
@@ -516,11 +553,13 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
 
 `AppPage1`子クラス
 
-* `AfterViewInit`インターフェースの`ngAfterViewInit()`を追加。ビューが用意されたときにイベント発火します。そのとき親クラスの`initPluginsAndObservables()`をコールします。
+* `AfterViewInit`インターフェースの`ngAfterViewInit()`を追加。ビューが用意されたときにイベント発火します。そのとき親クラスの`ngAfterViewInit()`を通じて`initPluginsAndObservables()`を実行します。
 
-さあ、わかっていただけたでしょうか。子クラスで実装された`initializable`関数は、子クラスの中では実行されません。  
-「親クラスで定義を宣言してるんだから、親クラスから呼び出したっていいじゃん。どんな振る舞いするかは知らないけど、何かするんでしょ？」ぐらいの適当さ。  
-それがAbstract Classの威力です。
+さあ、わかっていただけたでしょうか。子クラスで実装された2つの`initializable`関数は、子クラスの中では実行されません。  
+代わりに書いたコードは`ngAfterViewInit()`の中で`super.ngAfterViewInit()`、つまり親クラスの同じ名前の関数を呼び出しているだけです。前のStepと同じです。  
+子クラスは**親クラスが何をしているかを知る必要はありません。**ただ単に**イベント発火時の処理を親クラスに投げているだけ**です。  
+しかし重要なことは、**親クラスから実行される`initializable`関数の実装作業は子クラスでされている**、ということです。  
+これがAbstract Classの威力です。
 
 例えこの親クラスを継承するビューが10個あろうが100個あろうが、仕様変更時に子クラスが受ける影響は軽微であることが伝わるかと思います。  
 共通となりそうなコードはバンバン追いやってしまいましょう。Angular2のビューを作るときのポイントをもう一度整理しますよ。
@@ -530,7 +569,7 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
 * 共通のコードはなるべくまとめて親クラスに追いやること。親クラスから子クラスで実装したコードを呼び出せる性質を利用すること。
 * 仕様変更時にいかに自分が楽できるかを考えながらコーディングすること。ビジネスの現場では仕様変更はしょっちゅうある。
 
-**これができるのはTypeScriptによる恩恵が大きいです。型の力ですね。**  
+**これができるのはTypeScriptによる恩恵が大きいです。静的な型の力ですね。**  
 
 さて、親クラスはこれで完成ですが、最後に説明を保留していた`loadCards()`を子クラス追加して終わりたいと思います。。
 
@@ -546,7 +585,6 @@ import _ from 'lodash'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
 
 const componentSelector = 'app-page1';
-
 @Component({
   selector: componentSelector,
   template: `  
@@ -563,6 +601,10 @@ const componentSelector = 'app-page1';
   providers: [HTTP_PROVIDERS]
 })
 export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
+  // constructor() { // 定義を下に移動
+  //   super(componentSelector);
+  // }
+  
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
     $(`${componentSelector} #dialog`).dialog();
@@ -603,13 +645,13 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
   }
   
   ngAfterViewInit() {
-    super.initPluginsAndObservables(componentSelector);
+    super.ngAfterViewInit();
     this.loadCards(this.searchWord);
   }
   
   // 追加ここから▼▼▼
   constructor(public http: Http) {
-    super();
+    super(componentSelector);
   }
   cards: Card[] = [];
   
@@ -659,7 +701,9 @@ Httpモジュールを使うので、
 
 上記3点はセットで揃えましょう。
 
-これで子クラスも完成しました。お疲れ様でした。
+これで子クラスも完成しました。お疲れ様でした。  
+お気づきかと思いますがAngular2に依存するコードはイベント発火時の関数名(`routerOnDeactivate()`,`ngAfterViewInit()`)だけなので、
+どのフレームワークを使ったとしても他の部分のコードは流用できるはずですよ。
 
 ---
 
