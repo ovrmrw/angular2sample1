@@ -18,6 +18,6 @@ System.config({
     'page2': { defaultExtension: 'js' }
   },
   meta: {
-    'app/*.js': { deps: ['babel-polyfill'] }
+    'app/boot.js': { deps: ['babel-polyfill'] }
   }
 });

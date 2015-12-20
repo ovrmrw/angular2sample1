@@ -1,6 +1,6 @@
-import {AfterViewInit} from 'angular2/angular2'
+import {AfterViewInit} from 'angular2/core'
 import {OnDeactivate} from 'angular2/router'
-import {Subscription} from '@reactivex/rxjs' // alpha.47の場合は'@reactivex/rxjs'
+import {Subscription} from 'rxjs/Subscription'
 import _ from 'lodash'
 
 export abstract class AppPageParent implements AfterViewInit, OnDeactivate {
@@ -21,9 +21,10 @@ export abstract class AppPageParent implements AfterViewInit, OnDeactivate {
   }
 
   constructor(private componentSelector: string) {
+    this.initPluginsAndObservables(this.componentSelector);
   }
   ngAfterViewInit() {
-    this.initPluginsAndObservables(this.componentSelector);
+    //this.initPluginsAndObservables(this.componentSelector);
   }
   routerOnDeactivate() {
     this.disposeSubscriptions(this.componentSelector);

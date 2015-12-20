@@ -7,9 +7,9 @@ block body
       script.
         System.import('app/app.spec')
           .then(window.onload)
-          .catch(System.import('app/app'));
+          .catch(System.import('app/boot'));
     default
       script.
-        System.import('app/app');       
+        System.import('app/boot');       
   .container
     my-app loading...

@@ -1,5 +1,6 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
+import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/core'
 import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
+import {Observable} from 'rxjs/Observable'
 import {AppPageParent} from '../app/app-parent'
 declare var $: JQueryStatic;
 
@@ -15,8 +16,7 @@ const componentSelector = 'my-page2';
     <div class="row">
       <div class="col s12">
         <!-- Modal Trigger -->
-        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Push this button</a>
-  
+        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Push this button</a>  
         <!-- Modal Structure -->
         <div id="modal1" class="modal">
           <div class="modal-content">
@@ -36,7 +36,6 @@ export class AppPage2 extends AppPageParent
   implements OnInit, AfterContentInit, AfterViewInit, OnDeactivate {
 
   constructor() {
-    //super();
     super(componentSelector);
     console.log(`${componentSelector} constructor`);
   }
@@ -49,7 +48,7 @@ export class AppPage2 extends AppPageParent
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
     //super.initPluginsAndObservables(componentSelector);
-    super.ngAfterViewInit();
+    //super.ngAfterViewInit();
   }
   routerOnDeactivate() {
     console.log(`${componentSelector} onDeactivate`);

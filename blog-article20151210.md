@@ -2,7 +2,7 @@ title: Angular2の実践的なビューの作り方(Abstract Classを使う)
 
 ## Angular2, TypeScript, Abstract Class, RxJS
 
-**【注】この記事ではAngular2 alpha.47を前提としています。それ以降のバージョンだと色々細かいところで違いがあるので注意してください。**
+**【更新】Angular2 beta.0に対応しました。**
 
 [Angular 2 Advent Calendar 2015](http://qiita.com/advent-calendar/2015/angular2)の10日目です。
 
@@ -56,7 +56,7 @@ Web開発ではビューを作るときに、そうですね10画面ぐらいの
 * イベントハンドラの登録 (Step3)
 
 今回はこの2つを取り上げますが、イベントハンドラはせっかくなのでAngular2の普通のやり方ではなく、
-[rxjs](https://github.com/ReactiveX/RxJS)のSubscription(Observableイベントハンドラ)を使って例を示します。
+[RxJS](https://github.com/ReactiveX/RxJS)のSubscription(Observableイベントハンドラ)を使って例を示します。
 
 後に出てくる以下の2つの関数に注意を払ってください。  
 これらがAbstract Function(子クラスで実装を強制される関数)として登場します。
@@ -66,16 +66,16 @@ Web開発ではビューを作るときに、そうですね10画面ぐらいの
 
 親クラスでは宣言だけ、子クラスで実装します。その結果として親クラスの中で呼び出せるようになります。そして今回の例では
 
-1. 子クラスのビューが用意できた
-1. 子クラスの`ngOnViewInit()`イベント発火
-1. 親クラスの`initPluginsAndObservables()`実行
-1. (子クラスで実装されているはずの)`initializable`関数を親クラスから呼び出し
+1. 子クラスのビューを用意しようとするとき、
+1. 子クラスの`constructor()`が発火。`super()`で親クラスに伝播。
+1. 親クラスの`constructor()`を通じて`initPluginsAndObservables()`実行。
+1. (子クラスで実装されているはずの)`initializable`関数を親クラスから呼び出し。
 
 という流れで処理されます。  
 もう何度も言っていることですが、**Abstract Classを使うと共通するコードを親クラスに追いやってすっきりさせることが簡単にできます。**  
 順を追って理解していけばそう難しいことはないはずですので、さあ、はじめましょう。
 
-
+(僕は今回の記事のようなパターンを勝手に**Abstract Classデザインパターン**と読んでいます)
 
 
 ### <a name="step1">Step1 abstract親クラスを子クラスで継承する</a>
@@ -90,7 +90,7 @@ export abstract class AppParent {
 ```javascript
 // app-page1.ts
 
-import {Component} from 'angular2/angular2'
+import {Component} from 'angular2/core'
 
 const componentSelector = 'app-page1';
 @Component({
@@ -135,7 +135,7 @@ export abstract class AppParent {
 ```javascript
 // app-page1.ts
 
-import {Component} from 'angular2/angular2'
+import {Component} from 'angular2/core'
 
 const componentSelector = 'app-page1';
 @Component({
@@ -177,7 +177,7 @@ SPAでは状態を保存しておく用途に使われることが多いと思�
 ```javascript
 // app-parent.ts
 
-import {Subscription} from '@reactivex/rxjs' // alpha.47の場合は'@reactivex/rxjs'、それ以降は多分変わる
+import {Subscription} from 'rxjs/Subscription'
 
 export abstract class AppParent {
   constructor(private componentSelector: string) {
@@ -209,7 +209,8 @@ export abstract class AppParent {
 ```javascript
 // app-page1.ts
 
-import {Component, Observable} from 'angular2/angular2'
+import {Component} from 'angular2/core'
+import {Observable} from 'rxjs/Observable'
 import _ from 'lodash'
 
 const componentSelector = 'app-page1';
@@ -218,7 +219,7 @@ const componentSelector = 'app-page1';
   template: `  
     <div id="datepicker"></div>
     <div id="dialog"></div>
-    <div><input id="searchWord" type="text" [(ng-model)]="searchWord"></div>
+    <div><input id="searchWord" type="text" [(ngModel)]="searchWord"></div>
     <div>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</div>
   `
 })
@@ -243,9 +244,9 @@ export class AppPage1 extends AppParent {
   now: number;
   
   initializableEventObservables(): void {
-    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup') // (1)
-      .map((event: KeyboardEvent) => event.target.value)
-      .debounce<string>(() => Observable.timer(1000))
+    this.disposableSubscription = Observable.fromEvent<KeyboardEvent>(document.getElementById('searchWord'), 'keyup') // (1)
+      .map(event => event.target.value)
+      .debounce(() => Observable.timer(1000))
       .subscribe(value => {
         this.loadCards(value); // 最後に説明します。
       }); // Subscription型が返る。
@@ -255,8 +256,8 @@ export class AppPage1 extends AppParent {
         this.now = _.now();
       }); // Subscription型が返る。
       
-    this.disposableSubscription = Observable.fromEvent(document, 'click') // (3)
-      .map((event: MouseEvent) => event.target.textContent)
+    this.disposableSubscription = Observable.fromEvent<MouseEvent>(document, 'click') // (3)
+      .map(event => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000); // Materialize-cssの通知 
@@ -294,7 +295,7 @@ export class AppPage1 extends AppParent {
 ```javascript
 // app-parent.ts
 
-import {Subscription} from '@reactivex/rxjs'
+import {Subscription} from 'rxjs/Subscription'
 import {OnDeactivate} from 'angular2/router'
 
 export abstract class AppParent implements OnDeactivate { // interfaceをimplementsする
@@ -340,7 +341,8 @@ export abstract class AppParent implements OnDeactivate { // interfaceをimpleme
 ```javascript
 // app-page1.ts
 
-import {Component, Observable, AfterViewInit} from 'angular2/angular2'
+import {Component} from 'angular2/core'
+import {Observable} from 'rxjs/Observable'
 import {OnDeactivate} from 'angular2/router'
 import _ from 'lodash'
 
@@ -350,7 +352,7 @@ const componentSelector = 'app-page1';
   template: `  
     <div id="datepicker"></div>
     <div id="dialog"></div>
-    <div><input id="searchWord" type="text" [(ng-model)]="searchWord"></div>
+    <div><input id="searchWord" type="text" [(ngModel)]="searchWord"></div>
     <div>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</div>
   `
 })
@@ -374,9 +376,9 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
   now: number;
   
   initializableEventObservables(): void {
-    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
-      .map((event: KeyboardEvent) => event.target.value)
-      .debounce<string>(() => Observable.timer(1000))
+    this.disposableSubscription = Observable.fromEvent<KeyboardEvent>(document.getElementById('searchWord'), 'keyup')
+      .map(event => event.target.value)
+      .debounce(() => Observable.timer(1000))
       .subscribe(value => {
         this.loadCards(value);
       });
@@ -386,8 +388,8 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
         this.now = _.now();
       });
       
-    this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: MouseEvent) => event.target.textContent)
+    this.disposableSubscription = Observable.fromEvent<MouseEvent>(document, 'click')
+      .map(event => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000);  
@@ -422,13 +424,12 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
 ```javascript
 // app-parent.ts
 
-import {Subscription} from '@reactivex/rxjs'
-import {AfterViewInit} from 'angular2/angular2'
+import {Subscription} from 'rxjs/Subscription'
 import {OnDeactivate} from 'angular2/router'
 
 export abstract class AppParent implements OnDeactivate, AfterViewInit {
-  constructor(private componentSelector: string) {
-  }
+  //constructor(private componentSelector: string) { // 定義を下に移動
+  //}
   
   private static _initializedJQueryPluginSelectors: string[] = [];
   private get initializedJQueryPluginSelectors() {
@@ -464,86 +465,17 @@ export abstract class AppParent implements OnDeactivate, AfterViewInit {
   }
   
   // 追加ここから▼▼▼
+  constructor(private componentSelector: string) {
+    this.initPluginsAndObservables(this.componentSelector);
+  }
+  
   private initPluginsAndObservables(selector: string): void {
     if (_.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
       this.initializableJQueryPlugins();
       this.initializedJQueryPluginSelector = selector;
     }
     this.initializableEventObservables();
-  }
-  
-  ngAfterViewInit() {
-    this.initPluginsAndObservables(this.componentSelector);
-  }
-  // 追加ここまで▲▲▲
-}
-```
-```javascript
-// app-page1.ts
-
-import {Component, Observable, AfterViewInit} from 'angular2/angular2'
-import {OnDeactivate} from 'angular2/router'
-import _ from 'lodash'
-
-const componentSelector = 'app-page1';
-@Component({
-  selector: componentSelector,
-  template: `  
-    <div id="datepicker"></div>
-    <div id="dialog"></div>
-    <div><input id="searchWord" type="text" [(ng-model)]="searchWord"></div>
-    <div>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</div>
-  `
-})
-export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit { // interfaceをimplementsする
-  constructor() {
-    super(componentSelector);
-  }
-  
-  initializableJQueryPlugins(): void {
-    $(`${componentSelector} #datepicker`).datepicker();
-    $(`${componentSelector} #dialog`).dialog();
-  }
-  
-  static _searchWord: string = '';
-  get searchWord() {
-    return AppPage1._searchWord;
-  }
-  set searchWord(word: string) {
-    AppPage1._searchWord = word;
-  }
-  now: number;
-  
-  initializableEventObservables(): void {
-    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
-      .map((event: KeyboardEvent) => event.target.value)
-      .debounce<string>(() => Observable.timer(1000))
-      .subscribe(value => {
-        this.loadCards(value);
-      });
-
-    this.disposableSubscription = Observable.timer(1, 1000)
-      .subscribe(() => {
-        this.now = _.now();
-      });
-      
-    this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: MouseEvent) => event.target.textContent)
-      .filter(text => _.trim(text).length > 0)
-      .subscribe(text => {
-        Materialize.toast(`You clicked "${text}"`, 2000);  
-      });    
-  }
-    
-  routerOnDeactivate() {
-    super.routerOnDeactivate();
-  }
-  
-  // 追加ここから▼▼▼
-  ngAfterViewInit() {
-    super.ngAfterViewInit();
-    this.loadCards(this.searchWord); // 最後に説明します。
-  }
+  }  
   // 追加ここまで▲▲▲
 }
 ```
@@ -553,13 +485,13 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
 
 `AppPage1`子クラス
 
-* `AfterViewInit`インターフェースの`ngAfterViewInit()`を追加。ビューが用意されたときにイベント発火します。そのとき親クラスの`ngAfterViewInit()`を通じて`initPluginsAndObservables()`を実行します。
+* 追加変更ありません。`constructor()`の中の`super()`を通じて親クラスの`constructor()`がトリガーされます。
 
-さあ、わかっていただけたでしょうか。子クラスで実装された2つの`initializable`関数は、子クラスの中では実行されません。  
-代わりに書いたコードは`ngAfterViewInit()`の中で`super.ngAfterViewInit()`、つまり親クラスの同じ名前の関数を呼び出しているだけです。前のStepと同じです。  
-子クラスは**親クラスが何をしているかを知る必要はありません。**ただ単に**イベント発火時の処理を親クラスに投げているだけ**です。  
-しかし重要なことは、**親クラスから実行される`initializable`関数の実装作業は子クラスでされている**、ということです。  
-これがAbstract Classの威力です。
+さあ、わかっていただけたでしょうか。  
+子クラスで実装された2つの`initializable`関数は、子クラスの中では実行されません。  
+代わりに書いたコードは… ありません。`constructor()`の仕組みがあるので勝手にトリガーされます。    
+そして子クラスは**親クラスが何をしているかを知る必要はありません。**ただ単に**実装を強制された関数を適切に実装しているだけ**です。  
+これがAbstract Classの威力です。使えば使うほどその力はあなたの役に立つはずです。
 
 例えこの親クラスを継承するビューが10個あろうが100個あろうが、仕様変更時に子クラスが受ける影響は軽微であることが伝わるかと思います。  
 共通となりそうなコードはバンバン追いやってしまいましょう。Angular2のビューを作るときのポイントをもう一度整理しますよ。
@@ -579,7 +511,8 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
 ```javascript
 // app-page1.ts
 
-import {Component, Observable, AfterViewInit} from 'angular2/angular2'
+import {Component} from 'angular2/core'
+import {Observable} from 'rxjs/Observable'
 import {OnDeactivate} from 'angular2/router'
 import _ from 'lodash'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
@@ -590,17 +523,17 @@ const componentSelector = 'app-page1';
   template: `  
     <div id="datepicker"></div>
     <div id="dialog"></div>
-    <div><input id="searchWord" type="text" [(ng-model)]="searchWord"></div>
+    <div><input id="searchWord" type="text" [(ngModel)]="searchWord"></div>
     <div>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</div>
     <div>
       <ul>
-        <li *ng-for="#card of cards">{{card.title}} - {{card.body}}</li>
+        <li *ngFor="#card of cards">{{card.title}} - {{card.body}}</li>
       </ul>
     </div>
   `,
   providers: [HTTP_PROVIDERS]
 })
-export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
+export class AppPage1 extends AppParent implements OnDeactivate {
   // constructor() { // 定義を下に移動
   //   super(componentSelector);
   // }
@@ -620,9 +553,9 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
   now: number;
   
   initializableEventObservables(): void {
-    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
-      .map((event: KeyboardEvent) => event.target.value)
-      .debounce<string>(() => Observable.timer(1000))
+    this.disposableSubscription = Observable.fromEvent<KeyboardEvent>(document.getElementById('searchWord'), 'keyup')
+      .map(event => event.target.value)
+      .debounce(() => Observable.timer(1000))
       .subscribe(value => {
         this.loadCards(value);
       });
@@ -632,8 +565,8 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
         this.now = _.now();
       });
       
-    this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: MouseEvent) => event.target.textContent)
+    this.disposableSubscription = Observable.fromEvent<MouseEvent>(document, 'click')
+      .map(event => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         Materialize.toast(`You clicked "${text}"`, 2000);  
@@ -642,11 +575,6 @@ export class AppPage1 extends AppParent implements OnDeactivate, AfterViewInit {
     
   routerOnDeactivate() {
     super.routerOnDeactivate();
-  }
-  
-  ngAfterViewInit() {
-    super.ngAfterViewInit();
-    this.loadCards(this.searchWord);
   }
   
   // 追加ここから▼▼▼
@@ -702,8 +630,8 @@ Httpモジュールを使うので、
 上記3点はセットで揃えましょう。
 
 これで子クラスも完成しました。お疲れ様でした。  
-お気づきかと思いますがAngular2に依存するコードはイベント発火時の関数名(`routerOnDeactivate()`,`ngAfterViewInit()`)だけなので、
-どのフレームワークを使ったとしても他の部分のコードは流用できるはずですよ。
+お気づきかと思いますが**Abstract Classデザインパターン**がAngular2に依存するコードはイベント発火時の関数名(`routerOnDeactivate()`)だけなので、
+どのフレームワークを使ったとしても他の部分のコードは流用できるかと思います。
 
 ---
 

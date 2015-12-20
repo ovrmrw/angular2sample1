@@ -1,6 +1,7 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit, Observable} from 'angular2/angular2'
-import {ROUTER_DIRECTIVES, CanDeactivate, ComponentInstruction, OnDeactivate} from 'angular2/router'
+import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/core'
+import {ROUTER_DIRECTIVES, ComponentInstruction, OnDeactivate} from 'angular2/router'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
+import {Observable} from 'rxjs/Observable'
 import {AppPageParent} from '../app/app-parent'
 import {AppPage2} from '../page2/app-page2'
 import _ from 'lodash'
@@ -22,27 +23,26 @@ const componentSelector = 'my-page1';
       <form class="col s12 m12 l8">
         <div class="row">
           <div class="input-field col s12">
-            <!-- <input id="searchWord" type="text" class="validate" (keyup)="onChangeWord($event)"> -->
-            <input id="searchWord" [(ng-model)]="searchWord" type="text" class="validate">
+            <input id="searchWord" [(ngModel)]="searchWord" type="text" class="validate">
             <label for="searchWord">Search Word</label>
           </div>
         </div>
       </form>
     </div>
-    <div class="row" *ng-if="cards && cards.length > 0">
-      <div class="col s6 m4 l3" *ng-for="#card of cards">
-        <div class="card orange darken-2 waves-effect waves-light" [router-link]="['/Page2']">
+    <div class="row" *ngIf="cards && cards.length > 0">
+      <div class="col s6 m4 l3" *ngFor="#card of cards">
+        <div class="card orange darken-2 waves-effect waves-light" [routerLink]="['/Page2']">
           <div class="card-content white-text">
             <span class="card-title">{{card.title}}</span>
             <p>{{card.body}}</p>
           </div>
           <div class="card-action">
-            <a [router-link]="['/Page2']">Card Editor</a>
+            <a [routerLink]="['/Page2']">Card Editor</a>
           </div>
         </div>
       </div>
     </div>
-    <div class="row" *ng-if="cards && cards.length == 0">
+    <div class="row" *ngIf="cards && cards.length == 0">
       <div class="col s12">
         <h3 class="pink lighten-2 white-text">No Results</h3>
       </div>
@@ -50,8 +50,7 @@ const componentSelector = 'my-page1';
     <div class="row">
       <div class="col s12">
         <!-- Modal Trigger -->
-        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">push this button</a>
-  
+        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">push this button</a>  
         <!-- Modal Structure -->
         <div id="modal1" class="modal">
           <div class="modal-content">
@@ -71,22 +70,18 @@ const componentSelector = 'my-page1';
   providers: [HTTP_PROVIDERS]
 })
 export class AppPage1 extends AppPageParent
-  implements AfterViewInit, AfterContentInit, OnInit, CanDeactivate, OnDeactivate {
+  implements AfterViewInit, AfterContentInit, OnInit, OnDeactivate {
 
   static _searchWord: string = '';
-  get searchWord() {
-    return AppPage1._searchWord;
-  }
-  set searchWord(word: string) {
-    AppPage1._searchWord = word;
-  }
+  get searchWord() { return AppPage1._searchWord; }
+  set searchWord(word: string) { AppPage1._searchWord = word; }
   cards: Card[] = [];
   now: number;
 
   constructor(public http: Http) {
-    //super();
     super(componentSelector);
     console.log(`${componentSelector} constructor`);
+    this.loadCards(this.searchWord);
   }
   ngOnInit() {
     console.log(`${componentSelector} onInit`);
@@ -97,20 +92,17 @@ export class AppPage1 extends AppPageParent
   ngAfterViewInit() {
     console.log(`${componentSelector} afterViewInit`);
     //super.initPluginsAndObservables(componentSelector);
-    super.ngAfterViewInit();
-    this.loadCards(this.searchWord);
+    //super.ngAfterViewInit();
+    //this.loadCards(this.searchWord);
     document.getElementById('searchWord').focus();
   }
   routerOnDeactivate() {
     console.log(`${componentSelector} onDeactivate`);
     super.routerOnDeactivate();
   }
-  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
-    //return confirm('Are you sure you want to leave?');    
-  }
 
   loadCards(searchWord: string = ''): void {
-    (async() => {
+    (async () => {
       let cards: Card[] = await this.http.get('../cards.json')
         .map((res: Response) => res.json() as Card[])
         .toPromise(Promise);
@@ -146,14 +138,13 @@ export class AppPage1 extends AppPageParent
       .subscribe(() => {
         this.now = _.now();
       });
-      
+
     this.disposableSubscription = Observable.fromEvent(document, 'click')
       .map((event: MouseEvent) => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
         console.log(`${componentSelector} ${text}`);
-        Materialize.toast(`You clicked "${text}"`, 1000);  
-      });    
+        Materialize.toast(`You clicked "${text}"`, 1000);
+      });
   }
 }
-

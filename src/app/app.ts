@@ -1,4 +1,5 @@
-import {bootstrap, Component, provide} from 'angular2/angular2'
+import {Component, provide} from 'angular2/core'
+//import {bootstrap} from 'angular2/platform/browser'
 import {Router, Route, RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS, Location, LocationStrategy, HashLocationStrategy} from 'angular2/router'
 import {AppPage1} from '../page1/app-page1'
 import {AppPage2} from '../page2/app-page2'
@@ -10,8 +11,8 @@ import {AppPage2} from '../page2/app-page2'
       <div class="nav-wrapper">
         <a href="#" class="brand-logo right">Angular2 Sample1</a>
         <ul id="nav-mobile" class="left hide-on-small-and-down">
-          <li id="nav1" [class.active]="getLinkStyle('/p1')"><a [router-link]="['/Page1']" class="waves-effect waves-light"><i class="material-icons left">view_module</i>Card List</a></li>
-          <li id="nav2" [class.active]="getLinkStyle('/p2')"><a [router-link]="['/Page2']" class="waves-effect waves-light"><i class="material-icons left">description</i>Other Pages</a></li>
+          <li id="nav1" [class.active]="getLinkStyle('/p1')"><a [routerLink]="['/Page1']" class="waves-effect waves-light"><i class="material-icons left">view_module</i>Card List</a></li>
+          <li id="nav2" [class.active]="getLinkStyle('/p2')"><a [routerLink]="['/Page2']" class="waves-effect waves-light"><i class="material-icons left">description</i>Other Pages</a></li>
         </ul>
       </div>
     </nav>
@@ -58,4 +59,4 @@ export class App {
     }
   }
 }
-bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLocationStrategy })]);
+//bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLocationStrategy })]);

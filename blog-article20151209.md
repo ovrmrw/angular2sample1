@@ -2,6 +2,8 @@ title: 初心者がAngular2で嵌まったり解決したりサンプルコー�
 
 ## Angular2, TypeScript, VS Code, System.js, async/await, Electron
 
+**【更新】Angular2 beta.0に対応しました。**
+
 [Angular 2 Advent Calendar 2015](http://qiita.com/advent-calendar/2015/angular2)の9日目です。 
 
 目次
@@ -48,12 +50,13 @@ WindowsでのNode.js環境の作り方は過去記事 [Windowsでnpm installの�
 
 そして下記のnpm installがされていることを想定します。
 ```
-npm install angular2@2.0.0-alpha.47 --save --save-exact 
+npm install es6-promise@^3.0.2 es6-shim@^0.33.3 -save
+npm install reflect-metadata@0.1.2 rxjs@5.0.0-beta.0 zone.js@0.5.10 --save --save-exact
+npm install angular2@2.0.0-beta.0 --save --save-exact 
 npm install systemjs lodash jquery hammerjs materialize-css --save
 npm install typescript babel-preset-es2015 babel-polyfill gulp gulp-typescript gulp-babel gulp-ignore electron-prebuilt --save-dev
 tsd install lodash jquery --save
 ```
-(Angular2のHttpモジュールがalpha48で正常動作しないのでalpha47を指定してインストールします)
 
 僕が普段使っている`tsconfig.json`ファイルの内容です。今回はこの設定を前提とします。
 ```json
@@ -161,7 +164,6 @@ System.config({
     'numeral': 'node:numeral/min/numeral.min.js',
     'moment': 'node:moment/min/moment.min.js',
     'lodash': 'node:lodash/index.js',
-    'prominence': 'node:prominence/lib/prominence.js',
   },
   packages: {
     'app': { defaultExtension: 'js' },
@@ -221,7 +223,8 @@ gulp.task('watch', () => {
 公式チュートリアルにはルーティングの書き方の説明がないんですよね。    
 最もシンプルに説明するにはどうしたらいいかなって思って、下記のコードに辿り着きました。後はこれにゴテゴテ色々付け足していくことになると思います。
 ```javascript
-import {bootstrap, Component, provide} from 'angular2/angular2'
+import {Component, provide} from 'angular2/core'
+import {bootstrap} from 'angular2/platform/browser'
 import {Router, Route, RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS, Location, LocationStrategy, HashLocationStrategy} from 'angular2/router'
 import {Page1} from './page1/page1'
 import {Page2} from './page2/page2'
@@ -230,8 +233,8 @@ import {Page2} from './page2/page2'
   selector: 'my-app',
   template: `
     <ul>
-      <li><a [router-link]="['/Page1']">PAGE1</a></li>
-      <li><a [router-link]="['/Page2']">PAGE2</a></li>
+      <li><a [routerLink]="['/Page1']">PAGE1</a></li>
+      <li><a [routerLink]="['/Page2']">PAGE2</a></li>
     </ul>
     <router-outlet></router-outlet>
   `,
@@ -248,6 +251,7 @@ export class App {
 bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLocationStrategy })]);
 ```
 `new Route()`の中で`component`と`name`で同じこと書くならどっちかいらなくね？って思ったんですが、両方書いてないとエラーになるみたいです。  
+(↑この辺は理解が曖昧なので下のリンク先を参照してください)  
 `constructor()`でDIしているのはAngular2のお約束みたいなものですね。
 
 ちなみにルーティングを使うときはHTMLファイルで…
@@ -256,12 +260,13 @@ bootstrap(App, [ROUTER_PROVIDERS, provide(LocationStrategy, { useClass: HashLoca
 ```
 をお忘れなく。僕はこれで何時間か嵌りました。
 
+ルーティングに関しては[Angular2のRouterを触ってみる](http://qiita.com/_likr/items/baf59e41f3c6ed5609be)が詳しいです。
 
 ## <a name="part5">Part5 Httpモジュールを使ってみよう(async/await登場)</a>
 公式チュートリアルにはHttpモジュールの使い方も説明されていません。  
 最もシンプルに説明するにはどうしたらいいかな、でもasync/awaitも書きたいしって思ってたらこうなりました。
 ```javascript
-import {Component} from 'angular2/angular2'
+import {Component} from 'angular2/core'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
 import _ from 'lodash'
 
@@ -270,7 +275,7 @@ import _ from 'lodash'
   template: `
     <input type="text" (keyup)="onChangeWord($event)">
     <ul>
-      <li *ng-for="#card of cards">{{card.title}} - {{card.body}}</li>
+      <li *ngFor="#card of cards">{{card.title}} - {{card.body}}</li>
     </ul>
   `,
   providers: [HTTP_PROVIDERS]
@@ -330,6 +335,8 @@ Angular2のHttpモジュールはネットで調べるとわかるように、�
 ```
 をお忘れなく。僕はこれで何時間か嵌りました。
 
+Httpモジュールに関しては[Angular2のHttpモジュールを眺めてベストプラクティスを考える](http://qiita.com/laco0416/items/364c5923f77458c468ac)が詳しいです。
+
 
 ## <a name="part6">Part6 ElectronとSystem.jsで初心者が嵌まりそうなこと(require('remote')編)</a>
 [Electron](http://electron.atom.io/)のレンダラプロセス(ブラウザ)からメインプロセス(サーバーサイド)のモジュールを使いたいとき、普通にやったら[レンダラプロセスではrequireできない](http://electron.atom.io/docs/latest/tutorial/quick-start/)んですね。    
@@ -369,7 +376,7 @@ const remote = System._nodeRequire('remote');
 
 それとSPA開発なら当然**jqueryプラグインを一度だけロードする方法**も知っておく必要があります。これも嵌まりポイントです。
 ```javascript
-import {Component, AfterViewInit} from 'angular2/angular2'
+import {Component, AfterViewInit} from 'angular2/core'
 declare var $: JQueryStatic;
 
 const componentSelector = 'my-page2';
@@ -403,6 +410,8 @@ export class Page2 implements AfterViewInit {
 上記は[Materialize-cssのModals](http://materializecss.com/modals.html)を使えるようにするコード例です。  
 `ngAfterViewInit()`は僕の知る限りコンポーネント生成の一番最後に実行される関数なのでここに書きます。
 classのstatic変数で既にロードされたかどうかのフラグを持つのがコツですね。  
+
+これに関しては[Angular2の実践的なビューの作り方(Abstract Classを使う)](http://overmorrow.hatenablog.com/entry/2015/12/10/000000)でより詳細に触れています。
 
 
 ## <a name="part8">Part8 interfaceを実装してBreaking Changesに備えよう</a>
