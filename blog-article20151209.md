@@ -52,7 +52,7 @@ WindowsでのNode.js環境の作り方は過去記事 [Windowsでnpm installの�
 ```
 npm install es6-promise@^3.0.2 es6-shim@^0.33.3 -save
 npm install reflect-metadata@0.1.2 rxjs@5.0.0-beta.0 zone.js@0.5.10 --save --save-exact
-npm install angular2@2.0.0-beta.0 --save --save-exact 
+npm install angular2@2.0.0-beta.1 --save --save-exact 
 npm install systemjs lodash jquery hammerjs materialize-css --save
 npm install typescript babel-preset-es2015 babel-polyfill gulp gulp-typescript gulp-babel gulp-ignore electron-prebuilt --save-dev
 tsd install lodash jquery --save
@@ -374,7 +374,8 @@ const remote = System._nodeRequire('remote');
 おそらくブラウザ環境だけならhammerjsの指定は必要ないと思いますが、Electron環境ではこう書かないと動きません。
 最もよく使われている[Bootstrap](http://getbootstrap.com/)でも同じような書き方で通用するだろうと思いますので試してみて下さい。
 
-それとSPA開発なら当然**jqueryプラグインを一度だけロードする方法**も知っておく必要があります。これも嵌まりポイントです。
+~~それとSPA開発なら当然**jqueryプラグインを一度だけロードする方法**も知っておく必要があります。これも嵌まりポイントです。~~  
+**【注意】beta.1からはAngular2側の制御が変わり、jqueryプラグインは毎回ロードする必要があります。下記のサンプルコードはbeta.0以前の場合に有効です。**
 ```javascript
 import {Component, AfterViewInit} from 'angular2/core'
 declare var $: JQueryStatic;
@@ -407,9 +408,9 @@ export class Page2 implements AfterViewInit {
   }
 }
 ```
-上記は[Materialize-cssのModals](http://materializecss.com/modals.html)を使えるようにするコード例です。  
+~~上記は[Materialize-cssのModals](http://materializecss.com/modals.html)を使えるようにするコード例です。  
 `ngAfterViewInit()`は僕の知る限りコンポーネント生成の一番最後に実行される関数なのでここに書きます。
-classのstatic変数で既にロードされたかどうかのフラグを持つのがコツですね。  
+classのstatic変数で既にロードされたかどうかのフラグを持つのがコツですね。~~  
 
 これに関しては[Angular2の実践的なビューの作り方(Abstract Classを使う)](http://overmorrow.hatenablog.com/entry/2015/12/10/000000)でより詳細に触れています。
 

@@ -7,7 +7,8 @@ declare interface System {
 ///////////////////////////////////////////////////
 // jQueryプラグイン
 declare interface JQuery {
-  leanModal: () => void;
+  leanModal: () => void,
+  datepicker: (any) => void
 }
 
 declare interface EventTarget {

@@ -1,11 +1,11 @@
-import {Component, OnInit, AfterContentInit, AfterViewInit} from 'angular2/core'
-import {ROUTER_DIRECTIVES, ComponentInstruction, OnDeactivate} from 'angular2/router'
+import {Component, OnInit} from 'angular2/core'
+import {ROUTER_DIRECTIVES} from 'angular2/router'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
 import {Observable} from 'rxjs/Observable'
 import {AppPageParent} from '../app/app-parent'
 import {AppPage2} from '../page2/app-page2'
 import _ from 'lodash'
-declare var $: JQueryStatic;
+declare var jQuery: JQueryStatic;
 
 const componentSelector = 'my-page1';
 @Component({
@@ -69,9 +69,7 @@ const componentSelector = 'my-page1';
   directives: [AppPage2, ROUTER_DIRECTIVES],
   providers: [HTTP_PROVIDERS]
 })
-export class AppPage1 extends AppPageParent
-  implements AfterViewInit, AfterContentInit, OnInit, OnDeactivate {
-
+export class AppPage1 extends AppPageParent implements OnInit {
   static _searchWord: string = '';
   get searchWord() { return AppPage1._searchWord; }
   set searchWord(word: string) { AppPage1._searchWord = word; }
@@ -81,24 +79,38 @@ export class AppPage1 extends AppPageParent
   constructor(public http: Http) {
     super(componentSelector);
     console.log(`${componentSelector} constructor`);
-    this.loadCards(this.searchWord);
   }
   ngOnInit() {
+    super.ngOnInit();
     console.log(`${componentSelector} onInit`);
-  }
-  ngAfterContentInit() {
-    console.log(`${componentSelector} afterContentInit`);
-  }
-  ngAfterViewInit() {
-    console.log(`${componentSelector} afterViewInit`);
-    //super.initPluginsAndObservables(componentSelector);
-    //super.ngAfterViewInit();
-    //this.loadCards(this.searchWord);
+    this.loadCards(this.searchWord);
     document.getElementById('searchWord').focus();
   }
-  routerOnDeactivate() {
-    console.log(`${componentSelector} onDeactivate`);
-    super.routerOnDeactivate();
+
+  initializableJQueryPlugins(): void {
+    jQuery(`${componentSelector} .modal-trigger`).leanModal();
+  }
+  initializableEventObservables(): void {
+    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
+      .map((event: KeyboardEvent) => event.target.value)
+      .debounce(() => Observable.timer(1000))
+      .subscribe((value: string) => {
+        this.loadCards(value); // わざわざEventからvalueを取り出さなくても this.searchWord でも良い。
+        Materialize.toast(`Searching with word '${value}' triggered`, 2000);
+      });
+
+    this.disposableSubscription = Observable.timer(1, 1000)
+      .subscribe(() => {
+        this.now = _.now();
+      });
+
+    this.disposableSubscription = Observable.fromEvent(document.getElementsByTagName(componentSelector), 'click')
+      .map((event: MouseEvent) => event.target.textContent)
+      .filter(text => _.trim(text).length > 0)
+      .subscribe(text => {
+        console.log(`${componentSelector} ${text}`);
+        Materialize.toast(`You clicked "${text}"`, 1000);
+      });
   }
 
   loadCards(searchWord: string = ''): void {
@@ -120,31 +132,5 @@ export class AppPage1 extends AppPageParent
       }
       this.cards = cards;
     })();
-  }
-
-  initializableJQueryPlugins(): void {
-    $(`${componentSelector} .modal-trigger`).leanModal();
-  }
-  initializableEventObservables(): void {
-    this.disposableSubscription = Observable.fromEvent(document.getElementById('searchWord'), 'keyup')
-      .map((event: KeyboardEvent) => event.target.value)
-      .debounce(() => Observable.timer(1000))
-      .subscribe((value: string) => {
-        this.loadCards(value); // わざわざEventからvalueを取り出さなくても this.searchWord でも良い。
-        Materialize.toast(`Searching with word '${value}' triggered`, 2000);
-      });
-
-    this.disposableSubscription = Observable.timer(1, 1000)
-      .subscribe(() => {
-        this.now = _.now();
-      });
-
-    this.disposableSubscription = Observable.fromEvent(document, 'click')
-      .map((event: MouseEvent) => event.target.textContent)
-      .filter(text => _.trim(text).length > 0)
-      .subscribe(text => {
-        console.log(`${componentSelector} ${text}`);
-        Materialize.toast(`You clicked "${text}"`, 1000);
-      });
   }
 }

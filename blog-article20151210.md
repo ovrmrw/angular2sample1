@@ -2,14 +2,14 @@ title: Angular2の実践的なビューの作り方(Abstract Classを使う)
 
 ## Angular2, TypeScript, Abstract Class, RxJS
 
-**【更新】Angular2 beta.0に対応しました。**
+**【更新】Angular2 beta.1に対応しました。**
 
 [Angular 2 Advent Calendar 2015](http://qiita.com/advent-calendar/2015/angular2)の10日目です。
 
 前提環境などは昨日と同じなので、先に軽く目を通しておいていただければと思います。当然TypeScriptが大前提です。   
 昨日→[初心者がAngular2で嵌まったり解決したりサンプルコード書いたりしてみた。](http://overmorrow.hatenablog.com/entry/2015/12/09/000000)
 
-今日は何のために、どういうメリットのために、誰のためにクラスを継承(extends)するのかに焦点を当てます。  
+今日は何のために、どういうメリットのためにクラスを継承(extends)するのかに焦点を当てます。  
 想定する対象読者は↓
 
 * 何のためにクラスの継承をするのかよくわからない。
@@ -46,7 +46,7 @@ interfaceはimplementsし忘れたら強制力を発揮できません。別に�
 コメントを適切に残すのも大事ですが、コードを適切に強制するのもメンテナンスする上では大事なことです。
 
 ### Abstract Classの意義
-実装のないAbstract Functionを持つため、Abstract Classはそれ自身をインスタンス化することができません。つまり`new Hoge()`はできません。  
+実装のないAbstract Functionを持つため、Abstract Classはそれ自身をインスタンス化することができません。つまり`new ParentClass()`はできません。  
 継承専用となるため、子クラスで共通のコードをabstractな親クラスに追いやるようにしましょう。  
 
 Web開発ではビューを作るときに、そうですね10画面ぐらいのビューを作るとしましょう。
@@ -67,8 +67,7 @@ Web開発ではビューを作るときに、そうですね10画面ぐらいの
 親クラスでは宣言だけ、子クラスで実装します。その結果として親クラスの中で呼び出せるようになります。そして今回の例では
 
 1. 子クラスのビューを用意しようとするとき、
-1. 子クラスの`constructor()`が発火。`super()`で親クラスに伝播。
-1. 親クラスの`constructor()`を通じて`initPluginsAndObservables()`実行。
+1. 親クラスの`ngOnInit()`を通じて`initPluginsAndObservables()`実行。
 1. (子クラスで実装されているはずの)`initializable`関数を親クラスから呼び出し。
 
 という流れで処理されます。  
@@ -83,8 +82,6 @@ Web開発ではビューを作るときに、そうですね10画面ぐらいの
 // app-parent.ts
 
 export abstract class AppParent {
-  constructor(private componentSelector: string) {
-  }
 }
 ```
 ```javascript
@@ -99,13 +96,9 @@ const componentSelector = 'app-page1';
   `
 })
 export class AppPage1 extends AppParent {
-  constructor() {
-    super(componentSelector);
-  }
 }
 ```
 `AppPage1`子クラスは、abstractな`AppParent`親クラスを継承します。abstractな関数を宣言する予定なので、クラスもabstractを付けなければいけません。  
-また子クラスの`componentSelector`を親クラスに登録しておくと後々捗るので、`constructor()`を通して親クラスの`private`な`componentSelector`に代入します。    
 Step1は簡単ですね。
 
 ---
@@ -116,18 +109,8 @@ Step1は簡単ですね。
 // app-parent.ts
 
 export abstract class AppParent {
-  constructor(private componentSelector: string) {
-  }
   
   // 追加ここから▼▼▼
-  private static _initializedJQueryPluginSelectors: string[] = [];
-  private get initializedJQueryPluginSelectors() {
-    return AppParent._initializedJQueryPluginSelectors;
-  }
-  private set initializedJQueryPluginSelector(selector: string) {
-    AppParent._initializedJQueryPluginSelectors.push(selector);
-  }
-  
   protected abstract initializableJQueryPlugins(): void;
   // 追加ここまで▲▲▲
 }
@@ -146,9 +129,6 @@ const componentSelector = 'app-page1';
   `
 })
 export class AppPage1 extends AppParent {
-  constructor() {
-    super(componentSelector);
-  }
   
   // 追加ここから▼▼▼
   initializableJQueryPlugins(): void {
@@ -160,15 +140,16 @@ export class AppPage1 extends AppParent {
 ```
 `AppParent`親クラス
 
-* staticな`_initializedJQueryPluginSelectors`配列、及びそのgetter/setterを追加。jqueryプラグインを登録したセレクターを配列に格納し、二重に登録されないように制御します。
 * abstractな`initializableJQueryPlugins()`を追加。子クラスで実装することを強制します。
 
 `AppPage1`子クラス
 
 * `initializableJQueryPlugins()`を追加。親クラスでabstractとなっているので実装する必要があります。jqueryプラグインの登録を行ないます。
 
-親クラスでstaticな配列を持つ理由は、**ルーティングでページを行ったり来たりしてもstaticな変数の値は失われないから**です。  
-SPAでは状態を保存しておく用途に使われることが多いと思います。今回は**jqueryプラグインが確実に一度だけロードされるように制御するため**にstaticを用います。
+beta.0まではルーティングを使うときには**jqueryプラグインが確実に一度だけロードされるように制御する**必要がありましたが、  
+beta.1からはAngular2側の制御が変わったみたいで逆に**ページ遷移で入る度に毎回ロードする**必要があります。  
+
+この記事はその影響を多大に受けて多くのコードを削除することになりましたが、それはそれで書き方が楽になるので良いBreaking Changeだと思います。
 
 ---
 
@@ -180,16 +161,6 @@ SPAでは状態を保存しておく用途に使われることが多いと思�
 import {Subscription} from 'rxjs/Subscription'
 
 export abstract class AppParent {
-  constructor(private componentSelector: string) {
-  }
-  
-  private static _initializedJQueryPluginSelectors: string[] = [];
-  private get initializedJQueryPluginSelectors() {
-    return AppParent._initializedJQueryPluginSelectors;
-  }
-  private set initializedJQueryPluginSelector(selector: string) {
-    AppParent._initializedJQueryPluginSelectors.push(selector);
-  }
   
   protected abstract initializableJQueryPlugins(): void;
   
@@ -224,10 +195,7 @@ const componentSelector = 'app-page1';
   `
 })
 export class AppPage1 extends AppParent { 
-  constructor() {
-    super(componentSelector);
-  }
-   
+  
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
     $(`${componentSelector} #dialog`).dialog();
@@ -256,7 +224,7 @@ export class AppPage1 extends AppParent {
         this.now = _.now();
       }); // Subscription型が返る。
       
-    this.disposableSubscription = Observable.fromEvent<MouseEvent>(document, 'click') // (3)
+    this.disposableSubscription = Observable.fromEvent<MouseEvent>(document.getElementsByTagName(componentSelector), 'click') // (3)
       .map(event => event.target.textContent)
       .filter(text => _.trim(text).length > 0)
       .subscribe(text => {
@@ -275,7 +243,7 @@ export class AppPage1 extends AppParent {
 
 * `initializableEventObservables()`を追加。親クラスでabstractとなっているので実装する必要があります。ObservableからSubscriptionの生成を行ない、`disposableSubscription`に代入します。後でまとめてdisposeするときに使います。
 
-子クラスでstaticな変数を持つ理由は、Step2のときと同じ、**状態を保存しておくため**です。  
+子クラスでstaticな変数を持つ理由は、**状態(値)を保存しておくため**です。  
 今回の例では`searchWord`はルーティングでページを行ったり来たりしても失われずに残り続けます。
 
 最初に述べたように、イベントハンドラは全て(といっても3つだけですが)ObservableからSubscriptionを生成しています。
@@ -296,19 +264,9 @@ export class AppPage1 extends AppParent {
 // app-parent.ts
 
 import {Subscription} from 'rxjs/Subscription'
-import {OnDeactivate} from 'angular2/router'
+import {OnDestroy} from 'angular2/core'
 
-export abstract class AppParent implements OnDeactivate { // interfaceをimplementsする
-  constructor(private componentSelector: string) {
-  }
-  
-  private static _initializedJQueryPluginSelectors: string[] = [];
-  private get initializedJQueryPluginSelectors() {
-    return AppParent._initializedJQueryPluginSelectors;
-  }
-  private set initializedJQueryPluginSelector(selector: string) {
-    AppParent._initializedJQueryPluginSelectors.push(selector);
-  }
+export abstract class AppParent implements OnDestroy { // interfaceをimplementsする
   
   protected abstract initializableJQueryPlugins(): void;
   
@@ -332,90 +290,26 @@ export abstract class AppParent implements OnDeactivate { // interfaceをimpleme
     this._disposableSubscriptions = void 0;
   }
   
-  routerOnDeactivate() {
+  ngOnDestroy() {
     this.disposeSubscriptions();
   }
-  // 追加ここまで▲▲▲
-}
-```
-```javascript
-// app-page1.ts
-
-import {Component} from 'angular2/core'
-import {Observable} from 'rxjs/Observable'
-import {OnDeactivate} from 'angular2/router'
-import _ from 'lodash'
-
-const componentSelector = 'app-page1';
-@Component({
-  selector: componentSelector,
-  template: `  
-    <div id="datepicker"></div>
-    <div id="dialog"></div>
-    <div><input id="searchWord" type="text" [(ngModel)]="searchWord"></div>
-    <div>{{now | date:'yyyy-MM-dd HH:mm:ss'}}</div>
-  `
-})
-export class AppPage1 extends AppParent implements OnDeactivate { // interfaceをimplementsする
-  constructor() {
-    super(componentSelector);
-  }
-  
-  initializableJQueryPlugins(): void {
-    $(`${componentSelector} #datepicker`).datepicker();
-    $(`${componentSelector} #dialog`).dialog();
-  }
-  
-  static _searchWord: string = '';
-  get searchWord() {
-    return AppPage1._searchWord;
-  }
-  set searchWord(word: string) {
-    AppPage1._searchWord = word;
-  }
-  now: number;
-  
-  initializableEventObservables(): void {
-    this.disposableSubscription = Observable.fromEvent<KeyboardEvent>(document.getElementById('searchWord'), 'keyup')
-      .map(event => event.target.value)
-      .debounce(() => Observable.timer(1000))
-      .subscribe(value => {
-        this.loadCards(value);
-      });
-
-    this.disposableSubscription = Observable.timer(1, 1000)
-      .subscribe(() => {
-        this.now = _.now();
-      });
-      
-    this.disposableSubscription = Observable.fromEvent<MouseEvent>(document, 'click')
-      .map(event => event.target.textContent)
-      .filter(text => _.trim(text).length > 0)
-      .subscribe(text => {
-        Materialize.toast(`You clicked "${text}"`, 2000);  
-      });    
-  }
-  
-  // 追加ここから▼▼▼
-  routerOnDeactivate() {
-    super.routerOnDeactivate();
-  } 
   // 追加ここまで▲▲▲
 }
 ```
 `AppParent`親クラス
 
 * `disposeSubscriptions()`を追加。配列に格納された全てのSubscriptionをunsubscribeします。つまりdisposeします。ページ遷移で出る際に必須です。
-* `OnDeactivate`インターフェースの`routerOnDeactivate()`を追加。ページ遷移で出る際にイベント発火します。と言っても今回の例では子クラスから呼び出すために宣言しています。
+* `OnDestroy`インターフェースの`ngOnDestroy()`を追加。ページ遷移で出る度にイベント発火します。
 
 `AppPage1`子クラス
 
-* `OnDeactivate`インターフェースの`routerOnDeactivate()`を追加。ページ遷移で出る際にイベント発火します。そのとき親クラスの`routerOnDeactivate()`を呼び出し、最終的には`disposeSubscriptions()`を実行します。
+* 追加変更ありません。もし子クラスでも`ngOnDestroy()`を実装する場合は、その中で`super.ngOnDestroy()`を書く必要があります。(そうしないと親クラスの`ngOnDestroy()`が呼ばれないため)
 
-さあ、子クラスの追加内容を見てみます。  
-ほんの2～3行追加しただけですね。しかも親クラスの同じ関数をコールしているだけです。親クラスで何をやっているかなんて全く気にしなくていいですね。なんてすっきりなんでしょう。  
+さあ、子クラスには何も追加していません。  
+ページ遷移で出る際、`OnDestroy`インターフェースの`ngOnDestroy()`が呼ばれますが、子クラスには定義していないので自動的に親クラスの`ngOnDestroy()`が呼ばれ、`disposeSubscriptions()`が実行されます。  
+
+親クラスで何をやっているかなんて全く気にしなくていいですね。なんてすっきりなんでしょう。  
 しかしAbstract Classは次のStep5で**本領を発揮します。**
-
 
 ---
 
@@ -425,19 +319,9 @@ export class AppPage1 extends AppParent implements OnDeactivate { // interface�
 // app-parent.ts
 
 import {Subscription} from 'rxjs/Subscription'
-import {OnDeactivate} from 'angular2/router'
+import {OnDestroy, OnInit} from 'angular2/core'
 
-export abstract class AppParent implements OnDeactivate, AfterViewInit {
-  //constructor(private componentSelector: string) { // 定義を下に移動
-  //}
-  
-  private static _initializedJQueryPluginSelectors: string[] = [];
-  private get initializedJQueryPluginSelectors() {
-    return AppParent._initializedJQueryPluginSelectors;
-  }
-  private set initializedJQueryPluginSelector(selector: string) {
-    AppParent._initializedJQueryPluginSelectors.push(selector);
-  }
+export abstract class AppParent implements OnDestroy, OnInit {
   
   protected abstract initializableJQueryPlugins(): void;
   
@@ -460,44 +344,41 @@ export abstract class AppParent implements OnDeactivate, AfterViewInit {
     this._disposableSubscriptions = void 0;
   }
   
-  routerOnDeactivate() {
+  ngOnDestroy() {
     this.disposeSubscriptions();
   }
   
   // 追加ここから▼▼▼
-  constructor(private componentSelector: string) {
-    this.initPluginsAndObservables(this.componentSelector);
+  private initPluginsAndObservables(): void {
+    this.initializableJQueryPlugins();
+    this.initializableEventObservables();
   }
   
-  private initPluginsAndObservables(selector: string): void {
-    if (_.indexOf(this.initializedJQueryPluginSelectors, selector) === -1) {
-      this.initializableJQueryPlugins();
-      this.initializedJQueryPluginSelector = selector;
-    }
-    this.initializableEventObservables();
-  }  
+  ngOnInit() {
+    this.initPluginsAndObservables();
+  }
   // 追加ここまで▲▲▲
 }
 ```
 `AppParent`親クラス
 
 * `initPluginsAndObservables()`を追加。**子クラスで実装された**`initializableJQueryPlugins()`と`initializableEventObservables()`を**親クラスから実行して**UIを準備します。ただし同じセレクターに対してjqueryプラグインを二重に登録しないように制御します。
+* `OnInit`インターフェースの`ngOnInit()`を追加。ページ遷移で入る度にイベント発火します。
 
 `AppPage1`子クラス
 
-* 追加変更ありません。`constructor()`の中の`super()`を通じて親クラスの`constructor()`がトリガーされます。
+* 追加変更ありません。もし子クラスでも`ngOnInit()`を実装する場合は、その中で`super.ngOnInit()`を書く必要があります。(そうしないと親クラスの`ngOnInit()`が呼ばれないため)
 
 さあ、わかっていただけたでしょうか。  
 子クラスで実装された2つの`initializable`関数は、子クラスの中では実行されません。  
-代わりに書いたコードは… ありません。`constructor()`の仕組みがあるので勝手にトリガーされます。    
+(子クラスで`ngOnInit()`を書くときだけ注意する必要があります)      
 そして子クラスは**親クラスが何をしているかを知る必要はありません。**ただ単に**実装を強制された関数を適切に実装しているだけ**です。  
 これがAbstract Classの威力です。使えば使うほどその力はあなたの役に立つはずです。
 
 例えこの親クラスを継承するビューが10個あろうが100個あろうが、仕様変更時に子クラスが受ける影響は軽微であることが伝わるかと思います。  
 共通となりそうなコードはバンバン追いやってしまいましょう。Angular2のビューを作るときのポイントをもう一度整理しますよ。
 
-* jqueryプラグインは一度だけ登録されるように制御すること。そうしないとページ遷移して戻ってきたときに動作がおかしくなる。
-* Observableイベントハンドラはページ遷移する度に全てdisposeして、戻ってくる度に全て登録し直すこと。そうしないと動作がおかしくなる。
+* Observableイベントハンドラはページ遷移で出る度に全てdisposeして、入る度に全て登録し直すこと。そうしないと動作がおかしくなる。
 * 共通のコードはなるべくまとめて親クラスに追いやること。親クラスから子クラスで実装したコードを呼び出せる性質を利用すること。
 * 仕様変更時にいかに自分が楽できるかを考えながらコーディングすること。ビジネスの現場では仕様変更はしょっちゅうある。
 
@@ -508,12 +389,12 @@ export abstract class AppParent implements OnDeactivate, AfterViewInit {
 ---
 
 ## <a name="step6">Step6 最後まで説明を保留していたloadCards()を書く</a>
+これはもうオマケみたいなものなので、読み飛ばしてGitHubにアップロードしたサンプルコードを動かしてもらったが早いと思います。
 ```javascript
 // app-page1.ts
 
 import {Component} from 'angular2/core'
 import {Observable} from 'rxjs/Observable'
-import {OnDeactivate} from 'angular2/router'
 import _ from 'lodash'
 import {Http, Response, HTTP_PROVIDERS} from 'angular2/http'
 
@@ -533,11 +414,8 @@ const componentSelector = 'app-page1';
   `,
   providers: [HTTP_PROVIDERS]
 })
-export class AppPage1 extends AppParent implements OnDeactivate {
-  // constructor() { // 定義を下に移動
-  //   super(componentSelector);
-  // }
-  
+export class AppPage1 extends AppParent {
+   
   initializableJQueryPlugins(): void {
     $(`${componentSelector} #datepicker`).datepicker();
     $(`${componentSelector} #dialog`).dialog();
@@ -572,14 +450,9 @@ export class AppPage1 extends AppParent implements OnDeactivate {
         Materialize.toast(`You clicked "${text}"`, 2000);  
       });    
   }
-    
-  routerOnDeactivate() {
-    super.routerOnDeactivate();
-  }
   
   // 追加ここから▼▼▼
   constructor(public http: Http) {
-    super(componentSelector);
   }
   cards: Card[] = [];
   
@@ -630,7 +503,7 @@ Httpモジュールを使うので、
 上記3点はセットで揃えましょう。
 
 これで子クラスも完成しました。お疲れ様でした。  
-お気づきかと思いますが**Abstract Classデザインパターン**がAngular2に依存するコードはイベント発火時の関数名(`routerOnDeactivate()`)だけなので、
+お気づきかと思いますが**Abstract Classデザインパターン**がAngular2に依存するコードはイベント発火時の関数名(`ngOnInit()`,`ngOnDestroy()`)だけなので、
 どのフレームワークを使ったとしても他の部分のコードは流用できるかと思います。
 
 ---
