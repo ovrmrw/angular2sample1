@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es2015",
     "noImplicitAny": false,
     "sourceMap": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "typings/main",
+    "typings/main.d.ts"
   ]
 }

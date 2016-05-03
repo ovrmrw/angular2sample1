@@ -8,19 +8,19 @@ Angular2 Advent Calendar 2015に投稿した記事
 
 ---
 
-**【更新】Angular2 beta.1に対応しました。**
+**【更新】Angular2 rc.0に対応しました。**
 
 ## How to setup
 ```
-npm install && gulp compile
+npm install
 ```
 
 ## How to run on Express
 ```
-gulp ex
+npm run ex
 ```
 
 ## How to run on Electron
 ```
-gulp el
+npm run el
 ```

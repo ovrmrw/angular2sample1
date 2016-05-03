@@ -29,6 +29,6 @@ node_modules
 # src/app/*.js
 # src/page1/*.js
 # src/page2/*.js
-src/**/*.js
-express.js
+src-client/**/*.js
+src-server/**/*.js
 **/**.secret
