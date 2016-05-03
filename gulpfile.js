@@ -30,9 +30,9 @@ gulp.task('tscClient', () => {
     //.pipe(ignore.exclude(['src-server/**/*']))
     .pipe(ignore.include(['src-client/**/*.ts']))
     .pipe(ts(tsProject))
-    // .pipe(babel({
-    //   presets: ['es2015']
-    // }))
+    .pipe(babel({
+      presets: ['es2015']
+    }))
     .pipe(gulp.dest('.'));
 });
 

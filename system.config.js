@@ -2,7 +2,7 @@
 System.config({
   baseURL: '/',
   defaultJSExtensions: 'js',
-  transpiler: 'babel',
+  transpiler: false,
   paths: {
     'node:*': 'node_modules/*',
   },
