@@ -8,7 +8,7 @@ Angular2 Advent Calendar 2015に投稿した記事
 
 ---
 
-**【更新】Angular2 rc.0に対応しました。**
+**【更新】Angular2 rc.1に対応しました。**
 
 ## How to setup
 ```

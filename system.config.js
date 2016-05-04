@@ -13,10 +13,11 @@ System.config({
     'lodash': 'node:lodash/lodash.js',
     '@angular': 'node:@angular',
     'rxjs': 'node:rxjs',
+    'symbol-observable': 'node:symbol-observable',
     // 'zone.js': 'node:zone.js'
   },
   packages: {
-    'app': { main:'boot'},
+    'app': { main: 'boot' },
     '@angular/core': { main: 'index' },
     '@angular/common': { main: 'index' },
     '@angular/compiler': { main: 'index' },
@@ -26,6 +27,7 @@ System.config({
     '@angular/router-deprecated': { main: 'index' },
     '@angular/http': { main: 'index' },
     'rxjs': {},
+    'symbol-observable': { main: 'index' },
     // 'zone.js': {}
   }
 });
